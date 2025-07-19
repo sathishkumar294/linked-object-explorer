@@ -12,11 +12,11 @@ function App() {
     {
       id: "B",
       name: "Object B",
-      links: ["A", "D"],
+      links: ["D"],
       history: ["v1", "v2", "v3"],
     },
-    { id: "C", name: "Object C", links: ["A"], history: ["v1", "v2", "v3"] },
-    { id: "D", name: "Object D", links: ["B"], history: ["v1", "v2", "v3"] },
+    { id: "C", name: "Object C", links: ["D"], history: ["v1", "v2", "v3"] },
+    { id: "D", name: "Object D", links: [], history: ["v1", "v2", "v3"] },
   ];
   return (
     <>
