@@ -1,6 +1,7 @@
 import {
   Background,
   BackgroundVariant,
+  ControlButton,
   Controls,
   Edge,
   Handle,
@@ -15,18 +16,38 @@ import {
 
 import React, { SetStateAction, useCallback, useState } from "react";
 
-// Custom Node Component
-const RequirementNode = ({ data }: { data: DataT }) => {
+// Custom Node Component with theme support
+const RequirementNode = ({
+  data,
+  theme,
+}: {
+  data: DataT;
+  theme: "light" | "dark";
+}) => {
+  // Color classes for light and dark themes
+  const colorMap: {
+    [key in "light" | "dark"]: { [key: number]: string } & { handle: string };
+  } = {
+    light: {
+      1: "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8",
+      2: "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8",
+      3: "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8",
+      4: "bg-orange-100 border-orange-500 border-l-8 text-orange-800",
+      handle: "bg-gray-400",
+    },
+    dark: {
+      1: "bg-blue-900 border-l-blue-400 text-blue-100 border-l-8",
+      2: "bg-blue-800 border-l-blue-400 text-blue-100 border-l-8",
+      3: "bg-blue-700 border-l-blue-400 text-blue-100 border-l-8",
+      4: "bg-orange-900 border-orange-400 border-l-8 text-orange-100",
+      handle: "bg-gray-200",
+    },
+  };
+  const themeColors = colorMap[theme] || colorMap.light;
   return (
     <div
       className={`px-3 py-2 rounded-md border-2 text-center font-medium shadow-sm ${
-        data.level === 1
-          ? "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8"
-          : data.level === 2
-          ? "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8"
-          : data.level === 3
-          ? "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8"
-          : "bg-orange-100 border-orange-500 border-l-8 text-orange-800"
+        themeColors[data.level]
       }`}
     >
       <div className="font-bold">{data.label}</div>
@@ -34,20 +55,23 @@ const RequirementNode = ({ data }: { data: DataT }) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="bg-gray-400 dark:bg-white"
+        className={themeColors.handle}
       ></Handle>
       <Handle
         type="target"
         position={Position.Top}
-        className="bg-gray-400 dark:bg-white"
+        className={themeColors.handle}
       ></Handle>
     </div>
   );
 };
 
-const nodeTypes = {
-  requirement: RequirementNode,
-};
+// NodeTypes with theme support
+const getNodeTypes = (theme: "light" | "dark") => ({
+  requirement: (props: { data: DataT }) => (
+    <RequirementNode {...props} theme={theme} />
+  ),
+});
 
 type DataT = {
   label: string;
@@ -438,6 +462,12 @@ export default function ReactFlowGraph() {
     }))
   );
   const [selectedNode, setSelectedNode] = useState<NodeT | undefined>();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Set body background for theme
+  React.useEffect(() => {
+    document.body.style.backgroundColor = theme === "dark" ? "#18181b" : "#fff";
+  }, [theme]);
 
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: SetStateAction<NodeT | undefined>) => {
@@ -458,7 +488,7 @@ export default function ReactFlowGraph() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
-        nodeTypes={nodeTypes}
+        nodeTypes={getNodeTypes(theme)}
         fitView
         attributionPosition="bottom-left"
         nodesDraggable={true}
@@ -467,26 +497,65 @@ export default function ReactFlowGraph() {
         panOnDrag={true}
         zoomOnScroll={true}
       >
-        <Background color="#ccc" variant={BackgroundVariant.Dots} />
-        <Controls />
-        <MiniMap />
+        <Background
+          color={theme === "dark" ? "#22223b" : "#ccc"}
+          variant={BackgroundVariant.Dots}
+        />
+        <Controls>
+          <ControlButton
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            title="Toggle theme"
+          >
+            {theme === "light" ? "🌙" : "☀️"}
+          </ControlButton>
+        </Controls>
+        <MiniMap
+          nodeColor={(n) => {
+            if (theme === "dark") {
+              if (n.data.level === 1) return "#1e40af";
+              if (n.data.level === 2) return "#1e3a8a";
+              if (n.data.level === 3) return "#1e293b";
+              if (n.data.level === 4) return "#7c2d12";
+            } else {
+              if (n.data.level === 1) return "#bae6fd";
+              if (n.data.level === 2) return "#7dd3fc";
+              if (n.data.level === 3) return "#38bdf8";
+              if (n.data.level === 4) return "#fdba74";
+            }
+            return "#888";
+          }}
+        />
 
         {selectedNode && (
           <Panel
             position="top-right"
-            className="bg-white p-4 rounded-lg shadow-lg w-64"
+            className={
+              theme === "dark"
+                ? "bg-gray-900 text-white p-4 rounded-lg shadow-lg w-64"
+                : "bg-white p-4 rounded-lg shadow-lg w-64"
+            }
           >
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold text-lg">Requirement Details</h3>
               <button
                 onClick={closeDetails}
-                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                className={
+                  theme === "dark"
+                    ? "text-gray-400 hover:text-gray-200 text-2xl leading-none"
+                    : "text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                }
               >
                 ×
               </button>
             </div>
 
-            <div className="bg-gray-100 p-3 rounded mb-3">
+            <div
+              className={
+                theme === "dark"
+                  ? "bg-gray-800 p-3 rounded mb-3"
+                  : "bg-gray-100 p-3 rounded mb-3"
+              }
+            >
               <h4 className="font-semibold">{selectedNode.data.label}</h4>
               <p className="text-sm">Level: {selectedNode.data.level}</p>
             </div>
@@ -495,23 +564,57 @@ export default function ReactFlowGraph() {
 
         <Panel
           position="bottom-center"
-          className="bg-white p-3 rounded-lg shadow-md text-xs text-gray-600"
+          className={
+            theme === "dark"
+              ? "bg-gray-900 p-3 rounded-lg shadow-md text-xs text-gray-300"
+              : "bg-white p-3 rounded-lg shadow-md text-xs text-gray-600"
+          }
         >
-          <div className="text-xs text-gray-500">
+          <div
+            className={
+              theme === "dark"
+                ? "text-xs text-gray-400"
+                : "text-xs text-gray-500"
+            }
+          >
             <div className="flex items-center mb-1">
-              <div className="w-3 h-3 bg-red-100 border border-red-500 mr-2"></div>
+              <div
+                className={
+                  theme === "dark"
+                    ? "w-3 h-3 bg-blue-900 border border-blue-400 mr-2"
+                    : "w-3 h-3 bg-red-100 border border-red-500 mr-2"
+                }
+              ></div>
               <span>Level 1 (System)</span>
             </div>
             <div className="flex items-center mb-1">
-              <div className="w-3 h-3 bg-green-100 border border-green-500 mr-2"></div>
+              <div
+                className={
+                  theme === "dark"
+                    ? "w-3 h-3 bg-blue-800 border border-blue-400 mr-2"
+                    : "w-3 h-3 bg-green-100 border border-green-500 mr-2"
+                }
+              ></div>
               <span>Level 2 (Sub-system)</span>
             </div>
             <div className="flex items-center mb-1">
-              <div className="w-3 h-3 bg-blue-100 border border-blue-500 mr-2"></div>
+              <div
+                className={
+                  theme === "dark"
+                    ? "w-3 h-3 bg-blue-700 border border-blue-400 mr-2"
+                    : "w-3 h-3 bg-blue-100 border border-blue-500 mr-2"
+                }
+              ></div>
               <span>Level 3 (Component)</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 bg-orange-100 border border-orange-500 mr-2"></div>
+              <div
+                className={
+                  theme === "dark"
+                    ? "w-3 h-3 bg-orange-900 border border-orange-400 mr-2"
+                    : "w-3 h-3 bg-orange-100 border border-orange-500 mr-2"
+                }
+              ></div>
               <span>Level 4 (Implementation)</span>
             </div>
           </div>
