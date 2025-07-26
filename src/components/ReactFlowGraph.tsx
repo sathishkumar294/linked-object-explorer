@@ -1,5 +1,6 @@
 import {
   Background,
+  BackgroundVariant,
   Controls,
   Edge,
   Handle,
@@ -11,7 +12,7 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+
 import React, { SetStateAction, useCallback, useState } from "react";
 
 // Custom Node Component
@@ -450,7 +451,7 @@ export default function ReactFlowGraph() {
   };
 
   return (
-    <div style={{ height: 1000, width: 1200 }}>
+    <div style={{ height: "100vh", width: "100vw" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -466,7 +467,7 @@ export default function ReactFlowGraph() {
         panOnDrag={true}
         zoomOnScroll={true}
       >
-        <Background />
+        <Background color="#ccc" variant={BackgroundVariant.Dots} />
         <Controls />
         <MiniMap />
 
@@ -488,46 +489,32 @@ export default function ReactFlowGraph() {
             <div className="bg-gray-100 p-3 rounded mb-3">
               <h4 className="font-semibold">{selectedNode.data.label}</h4>
               <p className="text-sm">Level: {selectedNode.data.level}</p>
-              <p className="text-xs mt-1">
-                {selectedNode.data.level === 1
-                  ? "Top-level system requirement"
-                  : selectedNode.data.level === 2
-                  ? "Sub-system requirement"
-                  : selectedNode.data.level === 3
-                  ? "Component requirement"
-                  : "Implementation requirement"}
-              </p>
-            </div>
-
-            <div className="text-xs text-gray-500">
-              <div className="flex items-center mb-1">
-                <div className="w-3 h-3 bg-red-100 border border-red-500 mr-2"></div>
-                <span>Level 1 (System)</span>
-              </div>
-              <div className="flex items-center mb-1">
-                <div className="w-3 h-3 bg-green-100 border border-green-500 mr-2"></div>
-                <span>Level 2 (Sub-system)</span>
-              </div>
-              <div className="flex items-center mb-1">
-                <div className="w-3 h-3 bg-blue-100 border border-blue-500 mr-2"></div>
-                <span>Level 3 (Component)</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-orange-100 border border-orange-500 mr-2"></div>
-                <span>Level 4 (Implementation)</span>
-              </div>
             </div>
           </Panel>
         )}
 
         <Panel
-          position="bottom-left"
+          position="bottom-center"
           className="bg-white p-3 rounded-lg shadow-md text-xs text-gray-600"
         >
-          <p>• Drag nodes to reposition</p>
-          <p>• Drag background to pan</p>
-          <p>• Scroll to zoom</p>
-          <p>• Click nodes for details</p>
+          <div className="text-xs text-gray-500">
+            <div className="flex items-center mb-1">
+              <div className="w-3 h-3 bg-red-100 border border-red-500 mr-2"></div>
+              <span>Level 1 (System)</span>
+            </div>
+            <div className="flex items-center mb-1">
+              <div className="w-3 h-3 bg-green-100 border border-green-500 mr-2"></div>
+              <span>Level 2 (Sub-system)</span>
+            </div>
+            <div className="flex items-center mb-1">
+              <div className="w-3 h-3 bg-blue-100 border border-blue-500 mr-2"></div>
+              <span>Level 3 (Component)</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-orange-100 border border-orange-500 mr-2"></div>
+              <span>Level 4 (Implementation)</span>
+            </div>
+          </div>
         </Panel>
       </ReactFlow>
     </div>
