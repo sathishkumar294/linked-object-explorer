@@ -16,8 +16,7 @@ Linked Object Explorer is a visualization tool for exploring linked hierarchical
 - [React](https://react.dev/)
 - [React Flow](https://reactflow.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vitejs.dev/) (or [Create React App](https://create-react-app.dev/), depending on setup)
-- [Styled Components](https://styled-components.com/) (if used for styling)
+- [Vite](https://vitejs.dev/)
 
 ## Getting Started
 
