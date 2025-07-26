@@ -1,54 +1,61 @@
-# React + TypeScript + Vite
+> **Note:** This project is currently a work in progress. Features, functionality, and documentation are subject to change as development continues. Your feedback and contributions are welcome.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Linked Object Explorer
 
-Currently, two official plugins are available:
+Linked Object Explorer is a visualization tool for exploring linked hierarchical objects in Systems Engineering (SE) using the [React Flow](https://reactflow.dev/) library. This project provides an interactive interface to navigate complex object relationships, making it easier to understand and manage SE data structures.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Visualize hierarchical and linked objects interactively
+- Drag-and-drop node manipulation
+- Expand/collapse object hierarchies
+- Customizable node and edge types
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Major Technologies Used
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- [React](https://react.dev/)
+- [React Flow](https://reactflow.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/) (or [Create React App](https://create-react-app.dev/), depending on setup)
+- [Styled Components](https://styled-components.com/) (if used for styling)
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16 or higher recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+### Setup
+
+1. **Install dependencies:**
+
+```bash
+npm install
+# or
+yarn install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. **Start the development server:**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm run dev
+# or
+yarn dev
 ```
+
+3. **Open your browser and navigate to:**
+
+```
+http://localhost:5173
+```
+
+(Port may vary depending on your setup.)
+
+## License
+
+This project is free to use for any purpose, provided you contact the author before use. For inquiries and permissions, please reach out to the repository owner.
+
+---
+
+© 2024 Linked Object Explorer. All rights reserved.
