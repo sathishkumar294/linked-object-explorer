@@ -20,18 +20,26 @@ const RequirementNode = ({ data }: { data: DataT }) => {
     <div
       className={`px-3 py-2 rounded-md border-2 text-center font-medium shadow-sm ${
         data.level === 1
-          ? "bg-red-100 border-red-500"
+          ? "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8"
           : data.level === 2
-          ? "bg-green-100 border-green-500"
+          ? "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8"
           : data.level === 3
-          ? "bg-blue-100 border-blue-500"
-          : "bg-orange-100 border-orange-500"
+          ? "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8"
+          : "bg-orange-100 border-orange-500 border-l-8 text-orange-800"
       }`}
     >
       <div className="font-bold">{data.label}</div>
       <div className="text-xs">Level {data.level}</div>
-      <Handle type="source" position={Position.Bottom}></Handle>
-      <Handle type="target" position={Position.Top}></Handle>
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="bg-gray-400 dark:bg-white"
+      ></Handle>
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="bg-gray-400 dark:bg-white"
+      ></Handle>
     </div>
   );
 };
