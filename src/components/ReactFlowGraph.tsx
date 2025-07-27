@@ -14,7 +14,7 @@ import {
   useNodesState,
 } from "@xyflow/react";
 
-import React, { SetStateAction, useCallback, useState } from "react";
+import React, { SetStateAction, useCallback, useState, useMemo } from "react";
 
 // Custom Node Component with theme support
 const RequirementNode = ({
@@ -65,13 +65,6 @@ const RequirementNode = ({
     </div>
   );
 };
-
-// NodeTypes with theme support
-const getNodeTypes = (theme: "light" | "dark") => ({
-  requirement: (props: { data: DataT }) => (
-    <RequirementNode {...props} theme={theme} />
-  ),
-});
 
 type DataT = {
   label: string;
@@ -462,7 +455,18 @@ export default function ReactFlowGraph() {
     }))
   );
   const [selectedNode, setSelectedNode] = useState<NodeT | undefined>();
+
   const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Memoize nodeTypes to avoid React Flow warning
+  const nodeTypes = useMemo(
+    () => ({
+      requirement: (props: { data: DataT }) => (
+        <RequirementNode {...props} theme={theme} />
+      ),
+    }),
+    [theme]
+  );
 
   // Set body background for theme
   React.useEffect(() => {
@@ -488,7 +492,7 @@ export default function ReactFlowGraph() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
-        nodeTypes={getNodeTypes(theme)}
+        nodeTypes={nodeTypes}
         fitView
         attributionPosition="bottom-left"
         nodesDraggable={true}
