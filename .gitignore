@@ -25,3 +25,6 @@ dist-ssr
 
 # Ignore Continue.dev files
 .continue
+
+# Ignore jest testing files
+coverage
