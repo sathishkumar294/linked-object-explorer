@@ -117,39 +117,68 @@ const LevelBandsOverlay: React.FC<{ theme: "light" | "dark" }> = ({
   );
 };
 
+// Centralized color map for all node, minimap, and legend color assignments
+type Level = 1 | 2 | 3 | 4;
+type Theme = "light" | "dark";
+type NodeColorConfig = {
+  [key in Level]: { bg: string; minimap: string; legend: string };
+} & { handle: string };
+const nodeColorMap: Record<Theme, NodeColorConfig> = {
+  light: {
+    1: {
+      bg: "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8",
+      minimap: "#bae6fd",
+      legend: "bg-blue-100 border border-blue-500",
+    },
+    2: {
+      bg: "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8",
+      minimap: "#7dd3fc",
+      legend: "bg-green-100 border border-green-500",
+    },
+    3: {
+      bg: "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8",
+      minimap: "#38bdf8",
+      legend: "bg-blue-100 border border-blue-500",
+    },
+    4: {
+      bg: "bg-orange-100 border-orange-500 border-l-8 text-orange-800",
+      minimap: "#fdba74",
+      legend: "bg-orange-100 border border-orange-500",
+    },
+    handle: "bg-gray-400",
+  },
+  dark: {
+    1: {
+      bg: "bg-blue-900 border-l-blue-400 text-blue-100 border-l-8",
+      minimap: "#1e40af",
+      legend: "bg-blue-900 border border-blue-400",
+    },
+    2: {
+      bg: "bg-blue-800 border-l-blue-400 text-blue-100 border-l-8",
+      minimap: "#1e3a8a",
+      legend: "bg-blue-800 border border-blue-400",
+    },
+    3: {
+      bg: "bg-blue-700 border-l-blue-400 text-blue-100 border-l-8",
+      minimap: "#1e293b",
+      legend: "bg-blue-700 border border-blue-400",
+    },
+    4: {
+      bg: "bg-orange-900 border-orange-400 border-l-8 text-orange-100",
+      minimap: "#7c2d12",
+      legend: "bg-orange-900 border border-orange-400",
+    },
+    handle: "bg-gray-200",
+  },
+};
+
 // Custom Node Component with theme support
-const RequirementNode = ({
-  data,
-  theme,
-}: {
-  data: DataT;
-  theme: "light" | "dark";
-}) => {
-  // Color classes for light and dark themes
-  const colorMap: {
-    [key in "light" | "dark"]: { [key: number]: string } & { handle: string };
-  } = {
-    light: {
-      1: "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8",
-      2: "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8",
-      3: "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8",
-      4: "bg-orange-100 border-orange-500 border-l-8 text-orange-800",
-      handle: "bg-gray-400",
-    },
-    dark: {
-      1: "bg-blue-900 border-l-blue-400 text-blue-100 border-l-8",
-      2: "bg-blue-800 border-l-blue-400 text-blue-100 border-l-8",
-      3: "bg-blue-700 border-l-blue-400 text-blue-100 border-l-8",
-      4: "bg-orange-900 border-orange-400 border-l-8 text-orange-100",
-      handle: "bg-gray-200",
-    },
-  };
-  const themeColors = colorMap[theme] || colorMap.light;
+const RequirementNode = ({ data, theme }: { data: DataT; theme: Theme }) => {
+  const themeColors = nodeColorMap[theme] || nodeColorMap.light;
+  const level = data.level as Level;
   return (
     <div
-      className={`px-3 py-2 rounded-md border-2 text-center font-medium shadow-sm ${
-        themeColors[data.level]
-      }`}
+      className={`px-3 py-2 rounded-md border-2 text-center font-medium shadow-sm ${themeColors[level].bg}`}
     >
       <div className="font-bold">{data.label}</div>
       <div className="text-xs">Level {data.level}</div>
@@ -698,18 +727,8 @@ export default function ReactFlowGraph() {
         </Controls>
         <MiniMap
           nodeColor={(n) => {
-            if (theme === "dark") {
-              if (n.data.level === 1) return "#1e40af";
-              if (n.data.level === 2) return "#1e3a8a";
-              if (n.data.level === 3) return "#1e293b";
-              if (n.data.level === 4) return "#7c2d12";
-            } else {
-              if (n.data.level === 1) return "#bae6fd";
-              if (n.data.level === 2) return "#7dd3fc";
-              if (n.data.level === 3) return "#38bdf8";
-              if (n.data.level === 4) return "#fdba74";
-            }
-            return "#888";
+            const level = n.data.level as Level;
+            return nodeColorMap[theme][level].minimap || "#888";
           }}
         />
 
@@ -764,46 +783,27 @@ export default function ReactFlowGraph() {
                 : "text-xs text-gray-500"
             }
           >
-            <div className="flex items-center mb-1">
-              <div
-                className={
-                  theme === "dark"
-                    ? "w-3 h-3 bg-blue-900 border border-blue-400 mr-2"
-                    : "w-3 h-3 bg-red-100 border border-red-500 mr-2"
-                }
-              ></div>
-              <span>Level 1 (System)</span>
-            </div>
-            <div className="flex items-center mb-1">
-              <div
-                className={
-                  theme === "dark"
-                    ? "w-3 h-3 bg-blue-800 border border-blue-400 mr-2"
-                    : "w-3 h-3 bg-green-100 border border-green-500 mr-2"
-                }
-              ></div>
-              <span>Level 2 (Sub-system)</span>
-            </div>
-            <div className="flex items-center mb-1">
-              <div
-                className={
-                  theme === "dark"
-                    ? "w-3 h-3 bg-blue-700 border border-blue-400 mr-2"
-                    : "w-3 h-3 bg-blue-100 border border-blue-500 mr-2"
-                }
-              ></div>
-              <span>Level 3 (Component)</span>
-            </div>
-            <div className="flex items-center">
-              <div
-                className={
-                  theme === "dark"
-                    ? "w-3 h-3 bg-orange-900 border border-orange-400 mr-2"
-                    : "w-3 h-3 bg-orange-100 border border-orange-500 mr-2"
-                }
-              ></div>
-              <span>Level 4 (Implementation)</span>
-            </div>
+            {[1, 2, 3, 4].map((levelNum) => {
+              const level = levelNum as Level;
+              return (
+                <div
+                  className={`flex items-center mb-1${
+                    level === 4 ? " mb-0" : ""
+                  }`}
+                  key={level}
+                >
+                  <div
+                    className={`w-3 h-3 mr-2 ${nodeColorMap[theme][level].legend}`}
+                  ></div>
+                  <span>
+                    {level === 1 && "Level 1 (System)"}
+                    {level === 2 && "Level 2 (Sub-system)"}
+                    {level === 3 && "Level 3 (Component)"}
+                    {level === 4 && "Level 4 (Implementation)"}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </Panel>
       </ReactFlow>
