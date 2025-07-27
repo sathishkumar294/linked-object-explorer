@@ -17,6 +17,7 @@ import {
 } from "@xyflow/react";
 
 import React, { SetStateAction, useCallback, useState, useMemo } from "react";
+import { useStore } from "@xyflow/react";
 
 // Dynamically calculate level bands based on viewport height
 function getLevelBands(): Record<
@@ -42,57 +43,76 @@ window.addEventListener("resize", () => {
   LEVEL_BANDS = getLevelBands();
 });
 
-// Custom background component for level lines and 3D effect
-const LevelBackground: React.FC<{ theme: "light" | "dark" }> = ({ theme }) => {
+// Overlay that renders level bands in graph coordinates, so they pan/zoom with the graph
+const LevelBandsOverlay: React.FC<{ theme: "light" | "dark" }> = ({
+  theme,
+}) => {
+  // Get transform and dimensions from React Flow store
+  const [x, y, zoom, width, height] = useStore((s) => [
+    s.transform[0],
+    s.transform[1],
+    s.transform[2],
+    s.width,
+    s.height,
+  ]);
   const bands = [1, 2, 3, 4];
-  // Tailwind color classes
-  const bandColor = theme === "dark" ? "fill-blue-950/10" : "fill-blue-200/10";
-  const lineColor = theme === "dark" ? "stroke-gray-700" : "stroke-blue-300";
-  const gridColor = theme === "dark" ? "stroke-blue-900" : "stroke-blue-200";
+  const bandColor = theme === "dark" ? "#1725540F" : "#BFDBFE1A";
+  const lineColor = theme === "dark" ? "#374151" : "#93C5FD";
+  const gridColor = theme === "dark" ? "#1e293b" : "#bae6fd";
 
+  // The overlay SVG is rendered in graph coordinates, so we invert the transform
   return (
     <svg
-      className="absolute inset-0 w-full h-full z-0 pointer-events-none"
-      width="100%"
-      height="100%"
+      style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: width,
+        height: height,
+        zIndex: 0,
+        pointerEvents: "none",
+      }}
+      width={width}
+      height={height}
     >
-      {/* Level bands */}
-      {bands.map((level) => {
-        const { top, bottom } = LEVEL_BANDS[level];
-        return (
-          <g key={level}>
-            <rect
-              x="0"
-              y={top}
-              width="100%"
-              height={bottom - top}
-              className={bandColor}
-            />
-            <line
-              x1="0"
-              x2="100%"
-              y1={bottom}
-              y2={bottom}
-              className={`${lineColor}`}
-              strokeDasharray="8 4"
-              strokeWidth="2"
-            />
-          </g>
-        );
-      })}
-      {/* Perspective grid lines for 3D effect */}
-      {[...Array(12)].map((_, i) => (
-        <line
-          key={i}
-          x1={100 + i * 100}
-          y1={0}
-          x2={600 + i * 60}
-          y2={800}
-          className={gridColor}
-          strokeWidth="1"
-          opacity="0.25"
-        />
-      ))}
+      <g transform={`scale(${zoom}) translate(${x / zoom},${y / zoom})`}>
+        {bands.map((level) => {
+          const { top, bottom } = LEVEL_BANDS[level];
+          return (
+            <g key={level}>
+              <rect
+                x={0}
+                y={top}
+                width={2000}
+                height={bottom - top}
+                fill={bandColor}
+                stroke="none"
+              />
+              <line
+                x1={0}
+                x2={2000}
+                y1={bottom}
+                y2={bottom}
+                stroke={lineColor}
+                strokeDasharray="8 4"
+                strokeWidth={2}
+              />
+            </g>
+          );
+        })}
+        {[...Array(12)].map((_, i) => (
+          <line
+            key={i}
+            x1={100 + i * 100}
+            y1={0}
+            x2={600 + i * 60}
+            y2={height}
+            stroke={gridColor}
+            strokeWidth={1}
+            opacity={0.25}
+          />
+        ))}
+      </g>
     </svg>
   );
 };
@@ -639,8 +659,8 @@ export default function ReactFlowGraph() {
         panOnDrag={true}
         zoomOnScroll={true}
       >
-        {/* Custom background for level bands and 3D effect */}
-        <LevelBackground theme={theme} />
+        {/* Level bands overlay that pans/zooms with the graph */}
+        <LevelBandsOverlay theme={theme} />
         <Background
           color={theme === "dark" ? "#22223b" : "#ccc"}
           variant={BackgroundVariant.Dots}
