@@ -7,14 +7,95 @@ import {
   Handle,
   MarkerType,
   MiniMap,
+  NodeChange,
   Panel,
   Position,
   ReactFlow,
   useEdgesState,
   useNodesState,
+  applyNodeChanges,
 } from "@xyflow/react";
 
 import React, { SetStateAction, useCallback, useState, useMemo } from "react";
+
+// Dynamically calculate level bands based on viewport height
+function getLevelBands(): Record<
+  number,
+  { top: number; bottom: number; center: number }
+> {
+  const vh = window.innerHeight || 800;
+  const levels = 4;
+  const bandHeight = vh / levels;
+  const bands: Record<number, { top: number; bottom: number; center: number }> =
+    {};
+  for (let i = 1; i <= levels; i++) {
+    const top = (i - 1) * bandHeight;
+    const bottom = i * bandHeight;
+    const center = top + bandHeight / 2;
+    bands[i] = { top, bottom, center };
+  }
+  return bands;
+}
+
+let LEVEL_BANDS = getLevelBands();
+window.addEventListener("resize", () => {
+  LEVEL_BANDS = getLevelBands();
+});
+
+// Custom background component for level lines and 3D effect
+const LevelBackground: React.FC<{ theme: "light" | "dark" }> = ({ theme }) => {
+  const bands = [1, 2, 3, 4];
+  // Tailwind color classes
+  const bandColor = theme === "dark" ? "fill-blue-950/10" : "fill-blue-200/10";
+  const lineColor = theme === "dark" ? "stroke-gray-700" : "stroke-blue-300";
+  const gridColor = theme === "dark" ? "stroke-blue-900" : "stroke-blue-200";
+
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+      width="100%"
+      height="100%"
+    >
+      {/* Level bands */}
+      {bands.map((level) => {
+        const { top, bottom } = LEVEL_BANDS[level];
+        return (
+          <g key={level}>
+            <rect
+              x="0"
+              y={top}
+              width="100%"
+              height={bottom - top}
+              className={bandColor}
+            />
+            <line
+              x1="0"
+              x2="100%"
+              y1={bottom}
+              y2={bottom}
+              className={`${lineColor}`}
+              strokeDasharray="8 4"
+              strokeWidth="2"
+            />
+          </g>
+        );
+      })}
+      {/* Perspective grid lines for 3D effect */}
+      {[...Array(12)].map((_, i) => (
+        <line
+          key={i}
+          x1={100 + i * 100}
+          y1={0}
+          x2={600 + i * 60}
+          y2={800}
+          className={gridColor}
+          strokeWidth="1"
+          opacity="0.25"
+        />
+      ))}
+    </svg>
+  );
+};
 
 // Custom Node Component with theme support
 const RequirementNode = ({
@@ -83,163 +164,160 @@ type NodeT = {
   data: DataT;
 };
 
-// Initial nodes
+// Initial nodes, centered vertically in their level
 const initialNodes: NodeT[] = [
   // Level 1
   {
     id: "1.1",
     type: "requirement",
-    position: { x: 300, y: 50 },
+    position: { x: 300, y: 0 },
     data: { label: "Req 1.1", level: 1 },
   },
   {
     id: "1.2",
     type: "requirement",
-    position: { x: 600, y: 50 },
+    position: { x: 600, y: 0 },
     data: { label: "Req 1.2", level: 1 },
   },
-
   // Level 2
   {
     id: "2.1",
     type: "requirement",
-    position: { x: 150, y: 200 },
+    position: { x: 150, y: 0 },
     data: { label: "Req 2.1", level: 2 },
   },
   {
     id: "2.2",
     type: "requirement",
-    position: { x: 450, y: 200 },
+    position: { x: 450, y: 0 },
     data: { label: "Req 2.2", level: 2 },
   },
   {
     id: "2.3",
     type: "requirement",
-    position: { x: 750, y: 200 },
+    position: { x: 750, y: 0 },
     data: { label: "Req 2.3", level: 2 },
   },
-
   // Level 3
   {
     id: "3.1",
     type: "requirement",
-    position: { x: 100, y: 375 },
+    position: { x: 100, y: 0 },
     data: { label: "Req 3.1", level: 3 },
   },
   {
     id: "3.2",
     type: "requirement",
-    position: { x: 250, y: 375 },
+    position: { x: 250, y: 0 },
     data: { label: "Req 3.2", level: 3 },
   },
   {
     id: "3.3",
     type: "requirement",
-    position: { x: 400, y: 375 },
+    position: { x: 400, y: 0 },
     data: { label: "Req 3.3", level: 3 },
   },
   {
     id: "3.4",
     type: "requirement",
-    position: { x: 550, y: 375 },
+    position: { x: 550, y: 0 },
     data: { label: "Req 3.4", level: 3 },
   },
   {
     id: "3.5",
     type: "requirement",
-    position: { x: 700, y: 375 },
+    position: { x: 700, y: 0 },
     data: { label: "Req 3.5", level: 3 },
   },
   {
     id: "3.6",
     type: "requirement",
-    position: { x: 850, y: 375 },
+    position: { x: 850, y: 0 },
     data: { label: "Req 3.6", level: 3 },
   },
   {
     id: "3.7",
     type: "requirement",
-    position: { x: 1000, y: 375 },
+    position: { x: 1000, y: 0 },
     data: { label: "Req 3.7", level: 3 },
   },
   {
     id: "3.8",
     type: "requirement",
-    position: { x: 1150, y: 375 },
+    position: { x: 1150, y: 0 },
     data: { label: "Req 3.8", level: 3 },
   },
-
   // Level 4
   {
     id: "4.1",
     type: "requirement",
-    position: { x: 50, y: 550 },
+    position: { x: 50, y: 0 },
     data: { label: "Req 4.1", level: 4 },
   },
   {
     id: "4.2",
     type: "requirement",
-    position: { x: 150, y: 550 },
+    position: { x: 150, y: 0 },
     data: { label: "Req 4.2", level: 4 },
   },
   {
     id: "4.3",
     type: "requirement",
-    position: { x: 250, y: 550 },
+    position: { x: 250, y: 0 },
     data: { label: "Req 4.3", level: 4 },
   },
   {
     id: "4.4",
     type: "requirement",
-    position: { x: 350, y: 550 },
+    position: { x: 350, y: 0 },
     data: { label: "Req 4.4", level: 4 },
   },
   {
     id: "4.5",
     type: "requirement",
-    position: { x: 450, y: 550 },
+    position: { x: 450, y: 0 },
     data: { label: "Req 4.5", level: 4 },
   },
   {
     id: "4.6",
     type: "requirement",
-    position: { x: 550, y: 550 },
+    position: { x: 550, y: 0 },
     data: { label: "Req 4.6", level: 4 },
   },
   {
     id: "4.7",
     type: "requirement",
-    position: { x: 650, y: 550 },
+    position: { x: 650, y: 0 },
     data: { label: "Req 4.7", level: 4 },
   },
   {
     id: "4.8",
     type: "requirement",
-    position: { x: 750, y: 550 },
+    position: { x: 750, y: 0 },
     data: { label: "Req 4.8", level: 4 },
   },
   {
     id: "4.9",
     type: "requirement",
-    position: { x: 850, y: 550 },
+    position: { x: 850, y: 0 },
     data: { label: "Req 4.9", level: 4 },
   },
   {
     id: "4.10",
     type: "requirement",
-    position: { x: 950, y: 550 },
+    position: { x: 950, y: 0 },
     data: { label: "Req 4.10", level: 4 },
   },
   {
     id: "4.11",
     type: "requirement",
-    position: { x: 1050, y: 550 },
+    position: { x: 1050, y: 0 },
     data: { label: "Req 4.11", level: 4 },
   },
   {
     id: "4.12",
     type: "requirement",
-    position: { x: 1150, y: 550 },
+    position: { x: 1150, y: 0 },
     data: { label: "Req 4.12", level: 4 },
   },
 ];
@@ -446,7 +524,67 @@ const initialEdges: Edge[] = [
 ];
 
 export default function ReactFlowGraph() {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes] = useNodesState(initialNodes);
+  // Restrict node movement vertically within its level band, and center nodes on mount
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodes((nds) => {
+        const updated = applyNodeChanges(changes, nds) as NodeT[];
+        // Only update the node(s) that are being dragged/moved
+        return updated.map((node) => {
+          // Find if this node is being dragged (has a 'position' change in changes)
+          const change = changes.find(
+            (c) => c.type === "position" && c.id === node.id
+          );
+          if (!change) return node; // Not being moved, skip
+
+          const level = (node.data as DataT).level;
+          const band = LEVEL_BANDS[level];
+          if (!band) return { ...node, type: node.type || "requirement" };
+
+          const nodeHeight = 60;
+          const minY = band.top + 10;
+          const maxY = band.bottom - nodeHeight;
+          const y = node.position.y;
+
+          // Clamp only if out of bounds
+          if (y < minY || y > maxY) {
+            return {
+              ...node,
+              type: node.type || "requirement",
+              position: {
+                ...node.position,
+                y: Math.max(minY, Math.min(y, maxY)),
+              },
+            };
+          }
+          return node;
+        });
+      });
+    },
+    [setNodes]
+  );
+
+  // Center nodes vertically in their level on mount and when window resizes
+  React.useEffect(() => {
+    const bands = getLevelBands();
+    setNodes((nds) =>
+      nds.map((node) => {
+        const band = bands[node.data.level];
+        if (!band) return { ...node, type: node.type || "requirement" };
+        return {
+          ...node,
+          type: node.type || "requirement",
+          position: {
+            ...node.position,
+            y: band.center - 30, // 30 = half node height
+          },
+        };
+      })
+    );
+    // Update LEVEL_BANDS reference
+    LEVEL_BANDS = bands;
+  }, [setNodes]);
   const [edges, , onEdgesChange] = useEdgesState(
     initialEdges.map((edge) => ({
       ...edge,
@@ -501,6 +639,8 @@ export default function ReactFlowGraph() {
         panOnDrag={true}
         zoomOnScroll={true}
       >
+        {/* Custom background for level bands and 3D effect */}
+        <LevelBackground theme={theme} />
         <Background
           color={theme === "dark" ? "#22223b" : "#ccc"}
           variant={BackgroundVariant.Dots}
