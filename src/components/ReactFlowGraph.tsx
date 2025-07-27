@@ -126,47 +126,47 @@ type NodeColorConfig = {
 const nodeColorMap: Record<Theme, NodeColorConfig> = {
   light: {
     1: {
-      bg: "bg-blue-100 border-l-blue-500 text-blue-800 border-l-8",
+      bg: "bg-white border-l-8 border-blue-500 text-blue-800",
       minimap: "#bae6fd",
-      legend: "bg-blue-100 border border-blue-500",
+      legend: "bg-white border border-blue-500",
     },
     2: {
-      bg: "bg-blue-200 border-l-blue-500 text-blue-800 border-l-8",
+      bg: "bg-white border-l-8 border-green-500 text-green-800",
       minimap: "#7dd3fc",
-      legend: "bg-green-100 border border-green-500",
+      legend: "bg-white border border-green-500",
     },
     3: {
-      bg: "bg-blue-300 border-l-blue-500 text-blue-800 border-l-8",
+      bg: "bg-white border-l-8 border-blue-400 text-blue-800",
       minimap: "#38bdf8",
-      legend: "bg-blue-100 border border-blue-500",
+      legend: "bg-white border border-blue-400",
     },
     4: {
-      bg: "bg-orange-100 border-orange-500 border-l-8 text-orange-800",
+      bg: "bg-white border-l-8 border-orange-500 text-orange-800",
       minimap: "#fdba74",
-      legend: "bg-orange-100 border border-orange-500",
+      legend: "bg-white border border-orange-500",
     },
     handle: "bg-gray-400",
   },
   dark: {
     1: {
-      bg: "bg-blue-900 border-l-blue-400 text-blue-100 border-l-8",
+      bg: "bg-white border-l-8 border-blue-400 text-blue-900",
       minimap: "#1e40af",
-      legend: "bg-blue-900 border border-blue-400",
+      legend: "bg-white border border-blue-400",
     },
     2: {
-      bg: "bg-blue-800 border-l-blue-400 text-blue-100 border-l-8",
+      bg: "bg-white border-l-8 border-green-400 text-green-900",
       minimap: "#1e3a8a",
-      legend: "bg-blue-800 border border-blue-400",
+      legend: "bg-white border border-green-400",
     },
     3: {
-      bg: "bg-blue-700 border-l-blue-400 text-blue-100 border-l-8",
+      bg: "bg-white border-l-8 border-blue-300 text-blue-900",
       minimap: "#1e293b",
-      legend: "bg-blue-700 border border-blue-400",
+      legend: "bg-white border border-blue-300",
     },
     4: {
-      bg: "bg-orange-900 border-orange-400 border-l-8 text-orange-100",
+      bg: "bg-white border-l-8 border-orange-400 text-orange-900",
       minimap: "#7c2d12",
-      legend: "bg-orange-900 border border-orange-400",
+      legend: "bg-white border border-orange-400",
     },
     handle: "bg-gray-200",
   },
