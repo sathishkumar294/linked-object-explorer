@@ -605,6 +605,26 @@ export default function ReactFlowGraph() {
     // Update LEVEL_BANDS reference
     LEVEL_BANDS = bands;
   }, [setNodes]);
+
+  // Reset nodes to initial positions and recenter in bands
+  const handleReset = useCallback(() => {
+    const bands = getLevelBands();
+    setNodes(
+      initialNodes.map((node) => {
+        const band = bands[node.data.level];
+        if (!band) return { ...node, type: node.type || "requirement" };
+        return {
+          ...node,
+          type: node.type || "requirement",
+          position: {
+            ...node.position,
+            y: band.center - 30,
+          },
+        };
+      })
+    );
+    LEVEL_BANDS = bands;
+  }, [setNodes]);
   const [edges, , onEdgesChange] = useEdgesState(
     initialEdges.map((edge) => ({
       ...edge,
@@ -666,6 +686,9 @@ export default function ReactFlowGraph() {
           variant={BackgroundVariant.Dots}
         />
         <Controls>
+          <ControlButton onClick={handleReset} title="Reset view">
+            ⟳
+          </ControlButton>
           <ControlButton
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             title="Toggle theme"
