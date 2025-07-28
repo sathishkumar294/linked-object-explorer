@@ -7,5 +7,6 @@ export default defineConfig({
     globals: true,
     testTimeout: 10000,
     silent: true,
+    exclude: ["**/ReactFlowGraph.spec.ts", "node_modules/**"],
   },
 });

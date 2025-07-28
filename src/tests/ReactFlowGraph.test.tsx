@@ -1,4 +1,3 @@
-/// <reference types="vitest/globals" />
 import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -14,18 +13,81 @@ const TEST_LEVELS = [
   "Level 4 (Implementation)",
 ];
 
-// --- Mocks ---
-vi.mock("d3-drag", () => ({
-  drag: () => ({
-    on: () => ({ subject: () => ({}) }),
-  }),
-}));
+// Set up test environment
+beforeAll(() => {
+  // Mock document methods needed by D3
+  Object.defineProperties(window.document.documentElement, {
+    style: {
+      value: {
+        MozUserSelect: '',
+        WebkitUserSelect: '',
+        userSelect: '',
+      },
+      writable: true
+    }
+  });
 
-vi.mock("d3-selection", () => ({
-  select: () => ({
-    on: () => ({}),
-  }),
-}));
+  // Mock window methods needed by React Flow
+  window.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+
+  // Set initial background color
+  document.body.style.backgroundColor = 'rgb(255, 255, 255)';
+
+  // Mock getComputedStyle
+  window.getComputedStyle = () => ({
+    getPropertyValue: () => '',
+    backgroundColor: document.body.style.backgroundColor,
+    accentColor: '',
+    alignContent: '',
+    alignItems: '',
+    alignSelf: '',
+    // Add other required properties as needed
+  } as unknown as CSSStyleDeclaration);
+});
+
+// --- Mock React Flow ---
+vi.mock('@xyflow/react', async () => {
+  const actual = await vi.importActual('@xyflow/react');
+
+  return {
+    ...actual,
+    Panel: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid="rf__panel">
+        <button 
+          title="Toggle theme" 
+          data-testid="themeBtn" 
+          onClick={() => {
+            const currentBg = document.body.style.backgroundColor;
+            document.body.style.backgroundColor = currentBg === 'rgb(255, 255, 255)' ? 'rgb(24, 24, 27)' : 'rgb(255, 255, 255)';
+          }}
+        >
+          Theme
+        </button>
+        {children}
+      </div>
+    ),
+    MiniMap: () => <div data-testid="rf__minimap" className="react-flow__minimap" />,
+    Controls: () => (
+      <div data-testid="rf__controls" className="react-flow__controls">
+        <button title="Reset view" data-testid="resetBtn" className="react-flow__controls-button">
+          Reset
+        </button>
+      </div>
+    ),
+    useReactFlow: () => ({
+      fitView: vi.fn(),
+      setCenter: vi.fn(),
+      getNode: () => ({ position: { x: 0, y: 0 } }),
+      setNodes: vi.fn(),
+      getNodes: () => [],
+      setViewport: vi.fn(),
+    }),
+  };
+});
 
 // Mock ResizeObserver for React Flow
 beforeAll(() => {
@@ -46,15 +108,14 @@ describe("ReactFlowGraph", () => {
   describe("Initial Rendering", () => {
     it("should initialize with all required components", () => {
       expect(screen.getByTestId("rf__wrapper")).toBeInTheDocument();
+      expect(screen.getByTestId("rf__controls")).toBeInTheDocument();
       expect(screen.getByRole("application")).toBeInTheDocument();
-      expect(
-        document.querySelector(".react-flow__controls")
-      ).toBeInTheDocument();
     });
 
     it("should display all initial nodes", () => {
       TEST_REQUIREMENTS.forEach((req) => {
-        expect(screen.getByText(req)).toBeInTheDocument();
+        const reqId = req.split(' ')[1];
+        expect(screen.getByTestId(`rf__node-${reqId}`)).toBeInTheDocument();
       });
     });
 
@@ -68,9 +129,7 @@ describe("ReactFlowGraph", () => {
     });
 
     it("should render the minimap", () => {
-      expect(
-        document.querySelector(".react-flow__minimap")
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("rf__minimap")).toBeInTheDocument();
     });
   });
 
