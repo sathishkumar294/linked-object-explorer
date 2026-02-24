@@ -13,6 +13,13 @@ type DataT = {
     linkedItems?: string[];
 };
 
+type EdgeT = {
+    id: string;
+    source: string;
+    target: string;
+    [key: string]: unknown;
+};
+
 type NodeT = {
     id: string;
     type: string;
@@ -27,6 +34,9 @@ interface Props {
     open: boolean;
     onClose: () => void;
     theme: Theme;
+    edges: EdgeT[];
+    nodes: NodeT[];
+    onNavigateToNode: (nodeId: string) => void;
 }
 
 const levelMeta: Record<
@@ -109,6 +119,9 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
     open,
     onClose,
     theme,
+    edges,
+    nodes,
+    onNavigateToNode,
 }) => {
     const dark = theme === "dark";
     const data = node?.data;
@@ -122,7 +135,28 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
     const description =
         data?.description ??
         `This requirement describes the ${data?.label ?? "selected item"} and its functional boundaries within the ${meta.label} layer. It ensures traceability across all linked sub-requirements and implementation items.`;
-    const linkedItems = data?.linkedItems ?? [];
+
+    // Derive parent and child requirements from edges
+    // Edges go: source (child/lower-level) -> target (parent/higher-level)
+    // Parents: nodes that are the target of edges where current node is the source
+    const parentIds = node
+        ? edges.filter((e) => e.source === node.id).map((e) => e.target)
+        : [];
+    // Children: nodes that are the source of edges where current node is the target
+    const childIds = node
+        ? edges.filter((e) => e.target === node.id).map((e) => e.source)
+        : [];
+
+    const nodeMap = React.useMemo(() => {
+        const map: Record<string, NodeT> = {};
+        nodes.forEach((n) => {
+            map[n.id] = n;
+        });
+        return map;
+    }, [nodes]);
+
+    const parentNodes = parentIds.map((id) => nodeMap[id]).filter(Boolean);
+    const childNodes = childIds.map((id) => nodeMap[id]).filter(Boolean);
 
     const statusStyle = getStatusBadge(status, dark);
     const priorityStyle = getPriorityBadge(priority, dark);
@@ -325,36 +359,121 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
                             style={{ background: dividerColor }}
                         />
 
-                        {/* Linked items */}
+                        {/* Parent Requirements */}
                         <section className="req-sidebar__section">
                             <h3
                                 className="req-sidebar__section-title"
                                 style={{ color: textSecondary }}
                             >
-                                Linked Requirements
+                                <span style={{ marginRight: 6 }}>⬆</span> Parent Requirements
                             </h3>
-                            {linkedItems.length > 0 ? (
+                            {parentNodes.length > 0 ? (
                                 <ul className="req-sidebar__linked-list">
-                                    {linkedItems.map((item) => (
-                                        <li
-                                            key={item}
-                                            className="req-sidebar__linked-item"
-                                            style={{
-                                                background: cardBg,
-                                                borderLeft: `3px solid ${accentColor}`,
-                                                color: textPrimary,
-                                            }}
-                                        >
-                                            <span style={{ color: accentColor }}>↗</span> {item}
-                                        </li>
-                                    ))}
+                                    {parentNodes.map((pNode) => {
+                                        const pLevel = (pNode.data.level ?? 1) as Level;
+                                        const pMeta = levelMeta[pLevel] || levelMeta[1];
+                                        const pColor = dark ? pMeta.darkColor : pMeta.color;
+                                        return (
+                                            <li
+                                                key={pNode.id}
+                                                className="req-sidebar__linked-item req-sidebar__linked-item--clickable"
+                                                style={{
+                                                    background: cardBg,
+                                                    borderLeft: `3px solid ${pColor}`,
+                                                    color: textPrimary,
+                                                }}
+                                                onClick={() => onNavigateToNode(pNode.id)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        onNavigateToNode(pNode.id);
+                                                    }
+                                                }}
+                                            >
+                                                <span className="req-sidebar__linked-icon" style={{ color: pColor }}>
+                                                    {pMeta.icon}
+                                                </span>
+                                                <span className="req-sidebar__linked-label">
+                                                    {pNode.data.label}
+                                                </span>
+                                                <span className="req-sidebar__linked-level" style={{ color: pColor }}>
+                                                    L{pLevel}
+                                                </span>
+                                                <span className="req-sidebar__linked-arrow" style={{ color: textSecondary }}>→</span>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             ) : (
                                 <p
                                     className="req-sidebar__empty"
                                     style={{ color: textSecondary }}
                                 >
-                                    No linked requirements found.
+                                    No parent requirements.
+                                </p>
+                            )}
+                        </section>
+
+                        <div
+                            className="req-sidebar__divider"
+                            style={{ background: dividerColor }}
+                        />
+
+                        {/* Child Requirements */}
+                        <section className="req-sidebar__section">
+                            <h3
+                                className="req-sidebar__section-title"
+                                style={{ color: textSecondary }}
+                            >
+                                <span style={{ marginRight: 6 }}>⬇</span> Child Requirements
+                            </h3>
+                            {childNodes.length > 0 ? (
+                                <ul className="req-sidebar__linked-list">
+                                    {childNodes.map((cNode) => {
+                                        const cLevel = (cNode.data.level ?? 1) as Level;
+                                        const cMeta = levelMeta[cLevel] || levelMeta[1];
+                                        const cColor = dark ? cMeta.darkColor : cMeta.color;
+                                        return (
+                                            <li
+                                                key={cNode.id}
+                                                className="req-sidebar__linked-item req-sidebar__linked-item--clickable"
+                                                style={{
+                                                    background: cardBg,
+                                                    borderLeft: `3px solid ${cColor}`,
+                                                    color: textPrimary,
+                                                }}
+                                                onClick={() => onNavigateToNode(cNode.id)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        onNavigateToNode(cNode.id);
+                                                    }
+                                                }}
+                                            >
+                                                <span className="req-sidebar__linked-icon" style={{ color: cColor }}>
+                                                    {cMeta.icon}
+                                                </span>
+                                                <span className="req-sidebar__linked-label">
+                                                    {cNode.data.label}
+                                                </span>
+                                                <span className="req-sidebar__linked-level" style={{ color: cColor }}>
+                                                    L{cLevel}
+                                                </span>
+                                                <span className="req-sidebar__linked-arrow" style={{ color: textSecondary }}>→</span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            ) : (
+                                <p
+                                    className="req-sidebar__empty"
+                                    style={{ color: textSecondary }}
+                                >
+                                    No child requirements.
                                 </p>
                             )}
                         </section>

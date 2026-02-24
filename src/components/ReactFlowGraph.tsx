@@ -11,8 +11,10 @@ import {
   Panel,
   Position,
   ReactFlow,
+  ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  useReactFlow,
   applyNodeChanges,
 } from "@xyflow/react";
 
@@ -778,7 +780,8 @@ const initialEdges: Edge[] = [
   },
 ];
 
-export default function ReactFlowGraph() {
+function ReactFlowGraphInner() {
+  const { setCenter } = useReactFlow();
   const [nodes, setNodes] = useNodesState(initialNodes);
   // Restrict node movement vertically within its level band, and center nodes on mount
   const onNodesChange = useCallback(
@@ -895,6 +898,27 @@ export default function ReactFlowGraph() {
     []
   );
 
+  // Navigate to a node: pan/zoom the canvas and select it in the sidebar
+  const handleNavigateToNode = useCallback(
+    (nodeId: string) => {
+      const targetNode = nodes.find((n) => n.id === nodeId);
+      if (!targetNode) return;
+
+      // Estimate node dimensions for centering
+      const nodeWidth = 180;
+      const nodeHeight = 60;
+      const x = targetNode.position.x + nodeWidth / 2;
+      const y = targetNode.position.y + nodeHeight / 2;
+
+      setCenter(x, y, { zoom: 1.5, duration: 600 });
+
+      // Update sidebar to show the navigated node
+      setSelectedNode(targetNode);
+      setSidebarOpen(true);
+    },
+    [nodes, setCenter]
+  );
+
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
@@ -930,6 +954,9 @@ export default function ReactFlowGraph() {
         open={sidebarOpen}
         onClose={closeSidebar}
         theme={theme}
+        edges={edges}
+        nodes={nodes}
+        onNavigateToNode={handleNavigateToNode}
       />
 
       <ReactFlow
@@ -1010,5 +1037,14 @@ export default function ReactFlowGraph() {
         </Panel>
       </ReactFlow>
     </div>
+  );
+}
+
+// Wrap with ReactFlowProvider so useReactFlow hook works
+export default function ReactFlowGraph() {
+  return (
+    <ReactFlowProvider>
+      <ReactFlowGraphInner />
+    </ReactFlowProvider>
   );
 }
