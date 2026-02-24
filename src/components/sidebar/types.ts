@@ -3,10 +3,13 @@ export type Level = 1 | 2 | 3 | 4;
 export type DataT = {
     label: string;
     level: number;
+    title?: string;
     description?: string;
+    rationale?: string;
     status?: string;
     priority?: string;
     owner?: string;
+    meansOfValidation?: string[];
     linkedItems?: string[];
 };
 

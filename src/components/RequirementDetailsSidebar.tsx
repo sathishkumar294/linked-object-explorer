@@ -36,6 +36,8 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
     const status = data?.status ?? "Active";
     const priority = data?.priority ?? "Medium";
     const owner = data?.owner ?? "Unassigned";
+    const rationale = data?.rationale;
+    const meansOfValidation = data?.meansOfValidation;
     const description =
         data?.description ??
         `This requirement describes the ${data?.label ?? "selected item"} and its functional boundaries within the ${meta.label} layer. It ensures traceability across all linked sub-requirements and implementation items.`;
@@ -116,6 +118,32 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
                             </p>
                         </section>
 
+                        {rationale && (
+                            <>
+                                <div
+                                    className="req-sidebar__divider"
+                                    style={{ background: colors.dividerColor }}
+                                />
+                                <section className="req-sidebar__section">
+                                    <h3
+                                        className="req-sidebar__section-title"
+                                        style={{ color: colors.textSecondary }}
+                                    >
+                                        Rationale
+                                    </h3>
+                                    <p
+                                        className="req-sidebar__description"
+                                        style={{
+                                            background: colors.cardBg,
+                                            color: colors.textPrimary,
+                                        }}
+                                    >
+                                        {rationale}
+                                    </p>
+                                </section>
+                            </>
+                        )}
+
                         <div
                             className="req-sidebar__divider"
                             style={{ background: colors.dividerColor }}
@@ -123,6 +151,7 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
 
                         <DetailsGrid
                             owner={owner}
+                            meansOfValidation={meansOfValidation}
                             meta={meta}
                             nodeId={node.id}
                             accentColor={accentColor}

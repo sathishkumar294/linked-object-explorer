@@ -201,568 +201,60 @@ const RequirementNode = ({ data, theme }: { data: DataT; theme: Theme }) => {
 };
 
 
-// Initial nodes, centered vertically in their level
-const initialNodes: NodeT[] = [
-  // Level 1
-  {
-    id: "1.1",
-    type: "requirement",
-    position: { x: 300, y: 0 },
-    data: {
-      label: "Req 1.1",
-      level: 1,
-      description: "Top-level system requirement defining the overall performance and reliability constraints for the platform. This requirement drives the entire architecture and must be satisfied by all sub-systems.",
-      status: "Active",
-      priority: "High",
-      owner: "Systems Engineering",
-      linkedItems: ["Req 2.1", "Req 2.2"],
-    },
-  },
-  {
-    id: "1.2",
-    type: "requirement",
-    position: { x: 600, y: 0 },
-    data: {
-      label: "Req 1.2",
-      level: 1,
-      description: "System-level safety requirement ensuring fail-safe operation under all defined fault conditions. Mandatory for certification compliance.",
-      status: "Review",
-      priority: "High",
-      owner: "Safety Team",
-      linkedItems: ["Req 2.2", "Req 2.3"],
-    },
-  },
-  // Level 2
-  {
-    id: "2.1",
-    type: "requirement",
-    position: { x: 150, y: 0 },
-    data: {
-      label: "Req 2.1",
-      level: 2,
-      description: "Power sub-system requirement specifying voltage regulation and surge protection within defined tolerances.",
-      status: "Active",
-      priority: "High",
-      owner: "Hardware Team",
-      linkedItems: ["Req 1.1", "Req 3.1", "Req 3.2", "Req 3.7"],
-    },
-  },
-  {
-    id: "2.2",
-    type: "requirement",
-    position: { x: 450, y: 0 },
-    data: {
-      label: "Req 2.2",
-      level: 2,
-      description: "Communication sub-system requirement defining data transfer protocols and bandwidth guarantees between nodes.",
-      status: "Active",
-      priority: "Medium",
-      owner: "Network Team",
-      linkedItems: ["Req 1.1", "Req 1.2", "Req 3.3", "Req 3.4"],
-    },
-  },
-  {
-    id: "2.3",
-    type: "requirement",
-    position: { x: 750, y: 0 },
-    data: {
-      label: "Req 2.3",
-      level: 2,
-      description: "Control sub-system requirement ensuring deterministic response times for all safety-critical control loops.",
-      status: "Draft",
-      priority: "High",
-      owner: "Control Systems",
-      linkedItems: ["Req 1.2", "Req 3.5", "Req 3.6", "Req 3.8"],
-    },
-  },
-  // Level 3
-  {
-    id: "3.1",
-    type: "requirement",
-    position: { x: 100, y: 0 },
-    data: {
-      label: "Req 3.1",
-      level: 3,
-      description: "Voltage regulator component must maintain output within ±2% under all load conditions.",
-      status: "Active",
-      priority: "High",
-      owner: "HW Design",
-      linkedItems: ["Req 2.1", "Req 4.1", "Req 4.2"],
-    },
-  },
-  {
-    id: "3.2",
-    type: "requirement",
-    position: { x: 250, y: 0 },
-    data: {
-      label: "Req 3.2",
-      level: 3,
-      description: "Surge protection component must clamp transients to safe levels within 10 microseconds.",
-      status: "Active",
-      priority: "Medium",
-      owner: "HW Design",
-      linkedItems: ["Req 2.1", "Req 4.3", "Req 4.4"],
-    },
-  },
-  {
-    id: "3.3",
-    type: "requirement",
-    position: { x: 400, y: 0 },
-    data: {
-      label: "Req 3.3",
-      level: 3,
-      description: "Network interface component must support full-duplex operation at minimum 1 Gbps throughput.",
-      status: "Active",
-      priority: "Medium",
-      owner: "Network Design",
-      linkedItems: ["Req 2.2", "Req 4.5", "Req 4.6"],
-    },
-  },
-  {
-    id: "3.4",
-    type: "requirement",
-    position: { x: 550, y: 0 },
-    data: {
-      label: "Req 3.4",
-      level: 3,
-      description: "Packet scheduler component must guarantee max latency of 5ms for high-priority traffic classes.",
-      status: "Review",
-      priority: "High",
-      owner: "Network Design",
-      linkedItems: ["Req 2.2", "Req 4.7", "Req 4.8"],
-    },
-  },
-  {
-    id: "3.5",
-    type: "requirement",
-    position: { x: 700, y: 0 },
-    data: {
-      label: "Req 3.5",
-      level: 3,
-      description: "PID controller component must execute control algorithms within 1ms cycle time on target hardware.",
-      status: "Active",
-      priority: "High",
-      owner: "Controls Design",
-      linkedItems: ["Req 2.3", "Req 4.9", "Req 4.10"],
-    },
-  },
-  {
-    id: "3.6",
-    type: "requirement",
-    position: { x: 850, y: 0 },
-    data: {
-      label: "Req 3.6",
-      level: 3,
-      description: "Fault detection monitor must detect and log all out-of-range sensor readings within 2ms.",
-      status: "Active",
-      priority: "High",
-      owner: "Safety Design",
-      linkedItems: ["Req 2.3", "Req 4.11", "Req 4.12"],
-    },
-  },
-  {
-    id: "3.7",
-    type: "requirement",
-    position: { x: 1000, y: 0 },
-    data: {
-      label: "Req 3.7",
-      level: 3,
-      description: "Battery management component must track state-of-charge with less than 1% error.",
-      status: "Draft",
-      priority: "Low",
-      owner: "HW Design",
-      linkedItems: ["Req 2.1"],
-    },
-  },
-  {
-    id: "3.8",
-    type: "requirement",
-    position: { x: 1150, y: 0 },
-    data: {
-      label: "Req 3.8",
-      level: 3,
-      description: "Emergency stop component must disengage all actuators within 50ms of activation signal.",
-      status: "Active",
-      priority: "High",
-      owner: "Safety Design",
-      linkedItems: ["Req 2.3"],
-    },
-  },
-  // Level 4
-  {
-    id: "4.1",
-    type: "requirement",
-    position: { x: 50, y: 0 },
-    data: {
-      label: "Req 4.1",
-      level: 4,
-      description: "Implement LDO regulator circuit with feedback compensation per schematic REG-001.",
-      status: "Active",
-      priority: "High",
-      owner: "EE Team",
-      linkedItems: ["Req 3.1"],
-    },
-  },
-  {
-    id: "4.2",
-    type: "requirement",
-    position: { x: 150, y: 0 },
-    data: {
-      label: "Req 4.2",
-      level: 4,
-      description: "Validate voltage regulation via automated test bench using standard load profiles.",
-      status: "Draft",
-      priority: "Medium",
-      owner: "Test Team",
-      linkedItems: ["Req 3.1"],
-    },
-  },
-  {
-    id: "4.3",
-    type: "requirement",
-    position: { x: 250, y: 0 },
-    data: {
-      label: "Req 4.3",
-      level: 4,
-      description: "Install TVS diode array per BOM reference SPG-007 on all external power ports.",
-      status: "Active",
-      priority: "High",
-      owner: "EE Team",
-      linkedItems: ["Req 3.2"],
-    },
-  },
-  {
-    id: "4.4",
-    type: "requirement",
-    position: { x: 350, y: 0 },
-    data: {
-      label: "Req 4.4",
-      level: 4,
-      description: "Verify surge clamping via IEC 61000-4-5 compliance test at Level 3 surge.",
-      status: "Review",
-      priority: "Medium",
-      owner: "Test Team",
-      linkedItems: ["Req 3.2"],
-    },
-  },
-  {
-    id: "4.5",
-    type: "requirement",
-    position: { x: 450, y: 0 },
-    data: {
-      label: "Req 4.5",
-      level: 4,
-      description: "Configure NIC driver with Jumbo Frames support and interrupt coalescing enabled.",
-      status: "Active",
-      priority: "Low",
-      owner: "SW Team",
-      linkedItems: ["Req 3.3"],
-    },
-  },
-  {
-    id: "4.6",
-    type: "requirement",
-    position: { x: 550, y: 0 },
-    data: {
-      label: "Req 4.6",
-      level: 4,
-      description: "Benchmark network interface throughput using iperf3 under full system load.",
-      status: "Draft",
-      priority: "Low",
-      owner: "Test Team",
-      linkedItems: ["Req 3.3"],
-    },
-  },
-  {
-    id: "4.7",
-    type: "requirement",
-    position: { x: 650, y: 0 },
-    data: {
-      label: "Req 4.7",
-      level: 4,
-      description: "Implement DSCP-based traffic prioritization in software packet scheduler.",
-      status: "Active",
-      priority: "High",
-      owner: "SW Team",
-      linkedItems: ["Req 3.4"],
-    },
-  },
-  {
-    id: "4.8",
-    type: "requirement",
-    position: { x: 750, y: 0 },
-    data: {
-      label: "Req 4.8",
-      level: 4,
-      description: "Verify end-to-end latency for high-priority traffic via timestamped packet injection test.",
-      status: "Review",
-      priority: "High",
-      owner: "Test Team",
-      linkedItems: ["Req 3.4"],
-    },
-  },
-  {
-    id: "4.9",
-    type: "requirement",
-    position: { x: 850, y: 0 },
-    data: {
-      label: "Req 4.9",
-      level: 4,
-      description: "Implement discrete PID algorithm in RTOS task with 1ms period and watchdog supervision.",
-      status: "Active",
-      priority: "High",
-      owner: "Controls SW",
-      linkedItems: ["Req 3.5"],
-    },
-  },
-  {
-    id: "4.10",
-    type: "requirement",
-    position: { x: 950, y: 0 },
-    data: {
-      label: "Req 4.10",
-      level: 4,
-      description: "Validate PID cycle time via RTOS trace log analysis on target hardware.",
-      status: "Draft",
-      priority: "Medium",
-      owner: "Test Team",
-      linkedItems: ["Req 3.5"],
-    },
-  },
-  {
-    id: "4.11",
-    type: "requirement",
-    position: { x: 1050, y: 0 },
-    data: {
-      label: "Req 4.11",
-      level: 4,
-      description: "Implement threshold-based anomaly detection using rolling average on sensor input queue.",
-      status: "Active",
-      priority: "High",
-      owner: "Safety SW",
-      linkedItems: ["Req 3.6"],
-    },
-  },
-  {
-    id: "4.12",
-    type: "requirement",
-    position: { x: 1150, y: 0 },
-    data: {
-      label: "Req 4.12",
-      level: 4,
-      description: "Log all anomaly events to redundant black-box storage with ISO 8601 timestamps.",
-      status: "Active",
-      priority: "Medium",
-      owner: "Safety SW",
-      linkedItems: ["Req 3.6"],
-    },
-  },
-];
 
-// Initial edges (source is lower-level, target is higher-level)
-const initialEdges: Edge[] = [
-  // Level 2 satisfies Level 1
-  {
-    id: "e21-11",
-    source: "2.1",
-    target: "1.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e22-11",
-    source: "2.2",
-    target: "1.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e22-12",
-    source: "2.2",
-    target: "1.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e23-12",
-    source: "2.3",
-    target: "1.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-
-  // Level 3 satisfies Level 2
-  {
-    id: "e31-21",
-    source: "3.1",
-    target: "2.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e32-21",
-    source: "3.2",
-    target: "2.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e33-22",
-    source: "3.3",
-    target: "2.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e34-22",
-    source: "3.4",
-    target: "2.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e35-23",
-    source: "3.5",
-    target: "2.3",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e36-23",
-    source: "3.6",
-    target: "2.3",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e37-21",
-    source: "3.7",
-    target: "2.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e38-23",
-    source: "3.8",
-    target: "2.3",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-
-  // Level 4 satisfies Level 3
-  {
-    id: "e41-31",
-    source: "4.1",
-    target: "3.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e42-31",
-    source: "4.2",
-    target: "3.1",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e43-32",
-    source: "4.3",
-    target: "3.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e44-32",
-    source: "4.4",
-    target: "3.2",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e45-33",
-    source: "4.5",
-    target: "3.3",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e46-33",
-    source: "4.6",
-    target: "3.3",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e47-34",
-    source: "4.7",
-    target: "3.4",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e48-34",
-    source: "4.8",
-    target: "3.4",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e49-35",
-    source: "4.9",
-    target: "3.5",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e410-35",
-    source: "4.10",
-    target: "3.5",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e411-36",
-    source: "4.11",
-    target: "3.6",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-  {
-    id: "e412-36",
-    source: "4.12",
-    target: "3.6",
-    label: "satisfy",
-    animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed },
-  },
-];
 
 function ReactFlowGraphInner() {
   const { setCenter } = useReactFlow();
-  const [nodes, setNodes] = useNodesState(initialNodes);
+  const [nodes, setNodes] = useNodesState<any>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
+  const originalNodesRef = React.useRef<NodeT[]>([]);
+
+  // Fetch requirements from API
+  React.useEffect(() => {
+    fetch('/api/requirements')
+      .then((res) => res.json())
+      .then((data) => {
+        const bands = getLevelBands();
+        const levelCounts: Record<number, number> = {};
+
+        const mappedNodes: NodeT[] = (data.requirements || []).map((req: any) => {
+          const l = req.level || 1;
+          const count = levelCounts[l] || 0;
+          levelCounts[l] = count + 1;
+
+          return {
+            id: req.businessId,
+            type: 'requirement',
+            position: { x: count * 350 + 150, y: (bands[l] ? bands[l].center : 0) - 30 },
+            data: {
+              label: req.businessId,
+              title: req.title,
+              level: l,
+              description: req.statement,
+              rationale: req.rationale,
+              status: req.status,
+              priority: req.priority,
+              owner: req.owner,
+              meansOfValidation: req.meansOfValidation,
+            }
+          };
+        });
+
+        const mappedEdges: Edge[] = (data.edges || []).map((edge: any) => ({
+          ...edge,
+          animated: true,
+          markerEnd: { type: MarkerType.ArrowClosed },
+          sourceHandle: null,
+          targetHandle: null,
+        }));
+
+        originalNodesRef.current = mappedNodes;
+        setNodes(mappedNodes);
+        setEdges(mappedEdges);
+      })
+      .catch((err) => console.error('Failed to fetch requirements:', err));
+  }, [setNodes, setEdges]);
+
   // Restrict node movement vertically within its level band, and center nodes on mount
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -828,7 +320,7 @@ function ReactFlowGraphInner() {
   const handleReset = useCallback(() => {
     const bands = getLevelBands();
     setNodes(
-      initialNodes.map((node) => {
+      originalNodesRef.current.map((node) => {
         const band = bands[node.data.level];
         if (!band) return { ...node, type: node.type || "requirement" };
         return {
@@ -843,13 +335,6 @@ function ReactFlowGraphInner() {
     );
     LEVEL_BANDS = bands;
   }, [setNodes]);
-  const [edges, , onEdgesChange] = useEdgesState(
-    initialEdges.map((edge) => ({
-      ...edge,
-      sourceHandle: null,
-      targetHandle: null,
-    }))
-  );
   const [selectedNode, setSelectedNode] = useState<NodeT | undefined>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

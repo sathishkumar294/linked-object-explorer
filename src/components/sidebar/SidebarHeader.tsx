@@ -63,7 +63,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 </button>
             </div>
             <h2 className="req-sidebar__title" style={{ color: textPrimary }}>
-                {node?.data?.label ?? "No requirement selected"}
+                {node?.data?.title ?? node?.data?.label ?? "No requirement selected"}
             </h2>
             {node && (
                 <span className="req-sidebar__id" style={{ color: textSecondary }}>

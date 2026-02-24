@@ -3,6 +3,7 @@ import type { LevelMeta } from "./types";
 
 interface DetailsGridProps {
     owner: string;
+    meansOfValidation?: string[];
     meta: LevelMeta;
     nodeId: string;
     accentColor: string;
@@ -14,6 +15,7 @@ interface DetailsGridProps {
 
 const DetailsGrid: React.FC<DetailsGridProps> = ({
     owner,
+    meansOfValidation,
     meta,
     nodeId,
     accentColor,
@@ -84,6 +86,28 @@ const DetailsGrid: React.FC<DetailsGridProps> = ({
                         {nodeId}
                     </span>
                 </div>
+                {meansOfValidation && meansOfValidation.length > 0 && (
+                    <>
+                        <div
+                            className="req-sidebar__detail-divider"
+                            style={{ background: dividerColor }}
+                        />
+                        <div className="req-sidebar__detail-row">
+                            <span
+                                className="req-sidebar__detail-key"
+                                style={{ color: textSecondary }}
+                            >
+                                Validation
+                            </span>
+                            <span
+                                className="req-sidebar__detail-value"
+                                style={{ color: textPrimary, textTransform: "capitalize" }}
+                            >
+                                {meansOfValidation.map(v => v.replace('_', ' ')).join(', ')}
+                            </span>
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );
