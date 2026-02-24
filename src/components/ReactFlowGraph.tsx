@@ -62,7 +62,6 @@ const LevelBandsOverlay: React.FC<{ theme: "light" | "dark" }> = ({
   const bands = [1, 2, 3, 4];
   const bandColor = theme === "dark" ? "#1725540F" : "#BFDBFE1A";
   const lineColor = theme === "dark" ? "#374151" : "#93C5FD";
-  const gridColor = theme === "dark" ? "#1e293b" : "#bae6fd";
 
   // The overlay SVG is rendered in graph coordinates, so we invert the transform
   return (
@@ -82,40 +81,34 @@ const LevelBandsOverlay: React.FC<{ theme: "light" | "dark" }> = ({
       <g transform={`scale(${zoom}) translate(${x / zoom},${y / zoom})`}>
         {bands.map((level) => {
           const { top, bottom } = LEVEL_BANDS[level];
+          // Extend first and last bands to appear infinite vertically
+          const rectTop = level === 1 ? -500000 : top;
+          const rectBottom = level === bands.length ? 500000 : bottom;
+
           return (
             <g key={level}>
               <rect
-                x={0}
-                y={top}
-                width={2000}
-                height={bottom - top}
+                x={-500000}
+                y={rectTop}
+                width={1000000}
+                height={Math.max(0, rectBottom - rectTop)}
                 fill={bandColor}
                 stroke="none"
               />
-              <line
-                x1={0}
-                x2={2000}
-                y1={bottom}
-                y2={bottom}
-                stroke={lineColor}
-                strokeDasharray="8 4"
-                strokeWidth={2}
-              />
+              {level < bands.length && (
+                <line
+                  x1={-500000}
+                  x2={500000}
+                  y1={bottom}
+                  y2={bottom}
+                  stroke={lineColor}
+                  strokeDasharray="8 4"
+                  strokeWidth={2}
+                />
+              )}
             </g>
           );
         })}
-        {[...Array(12)].map((_, i) => (
-          <line
-            key={i}
-            x1={100 + i * 100}
-            y1={0}
-            x2={600 + i * 60}
-            y2={height}
-            stroke={gridColor}
-            strokeWidth={1}
-            opacity={0.25}
-          />
-        ))}
       </g>
     </svg>
   );
