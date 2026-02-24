@@ -21,6 +21,7 @@ import {
 import React, { SetStateAction, useCallback, useState, useMemo } from "react";
 import RequirementDetailsSidebar from "./RequirementDetailsSidebar";
 import { useStore } from "@xyflow/react";
+import type { DataT, NodeT } from "./sidebar/types";
 
 // Dynamically calculate level bands based on viewport height
 function getLevelBands(): Record<
@@ -199,27 +200,6 @@ const RequirementNode = ({ data, theme }: { data: DataT; theme: Theme }) => {
   );
 };
 
-type DataT = {
-  label: string;
-  level: number;
-  description?: string;
-  status?: string;
-  priority?: string;
-  owner?: string;
-  linkedItems?: string[];
-};
-
-type PositionT = {
-  x: number;
-  y: number;
-};
-
-type NodeT = {
-  id: string;
-  type: string;
-  position: PositionT;
-  data: DataT;
-};
 
 // Initial nodes, centered vertically in their level
 const initialNodes: NodeT[] = [
