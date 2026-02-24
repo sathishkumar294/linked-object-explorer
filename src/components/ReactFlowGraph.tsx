@@ -21,7 +21,7 @@ import {
 import React, { SetStateAction, useCallback, useState, useMemo } from "react";
 import RequirementDetailsSidebar from "./RequirementDetailsSidebar";
 import { useStore } from "@xyflow/react";
-import type { DataT, NodeT } from "./sidebar/types";
+import type { DataT, NodeT, ValidationMethod } from "./sidebar/types";
 
 // Dynamically calculate level bands based on viewport height
 function getLevelBands(): Record<
@@ -207,13 +207,18 @@ function ReactFlowGraphInner() {
   const { setCenter } = useReactFlow();
   const [nodes, setNodes] = useNodesState<any>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
+  const [validations, setValidations] = useState<ValidationMethod[]>([]);
   const originalNodesRef = React.useRef<NodeT[]>([]);
 
-  // Fetch requirements from API
+  // Fetch requirements and validations from API
   React.useEffect(() => {
-    fetch('/api/requirements')
-      .then((res) => res.json())
-      .then((data) => {
+    Promise.all([
+      fetch('/api/requirements').then(r => r.json()),
+      fetch('/api/validations').then(r => r.json())
+    ])
+      .then(([reqData, valData]) => {
+        setValidations(valData);
+        const data = reqData;
         const bands = getLevelBands();
         const levelCounts: Record<number, number> = {};
 
@@ -252,7 +257,7 @@ function ReactFlowGraphInner() {
         setNodes(mappedNodes);
         setEdges(mappedEdges);
       })
-      .catch((err) => console.error('Failed to fetch requirements:', err));
+      .catch((err) => console.error('Failed to fetch data:', err));
   }, [setNodes, setEdges]);
 
   // Restrict node movement vertically within its level band, and center nodes on mount
@@ -421,6 +426,7 @@ function ReactFlowGraphInner() {
         theme={theme}
         edges={edges}
         nodes={nodes}
+        validations={validations}
         onNavigateToNode={handleNavigateToNode}
       />
 

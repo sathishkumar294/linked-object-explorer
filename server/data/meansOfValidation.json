@@ -1,0 +1,22 @@
+[
+    {
+        "id": "analysis",
+        "label": "Analysis",
+        "color": "#3b82f6"
+    },
+    {
+        "id": "lab_tests",
+        "label": "Lab Tests",
+        "color": "#ef4444"
+    },
+    {
+        "id": "simulation",
+        "label": "Simulation",
+        "color": "#f59e0b"
+    },
+    {
+        "id": "proof_reading",
+        "label": "Proof Reading",
+        "color": "#10b981"
+    }
+]

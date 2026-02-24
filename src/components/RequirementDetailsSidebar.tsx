@@ -1,7 +1,7 @@
 import React from "react";
 import "./RequirementDetailsSidebar.css";
 
-import type { Level, EdgeT, NodeT, Theme } from "./sidebar/types";
+import type { Level, EdgeT, NodeT, Theme, ValidationMethod } from "./sidebar/types";
 import { levelMeta, getAccentColor, getThemeColors } from "./sidebar/sidebarConstants";
 import SidebarHeader from "./sidebar/SidebarHeader";
 import BadgesRow from "./sidebar/BadgesRow";
@@ -15,6 +15,7 @@ interface Props {
     theme: Theme;
     edges: EdgeT[];
     nodes: NodeT[];
+    validations: ValidationMethod[];
     onNavigateToNode: (nodeId: string) => void;
 }
 
@@ -25,6 +26,7 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
     theme,
     edges,
     nodes,
+    validations,
     onNavigateToNode,
 }) => {
     const dark = theme === "dark";
@@ -152,6 +154,7 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
                         <DetailsGrid
                             owner={owner}
                             meansOfValidation={meansOfValidation}
+                            validationsMap={validations}
                             meta={meta}
                             nodeId={node.id}
                             accentColor={accentColor}

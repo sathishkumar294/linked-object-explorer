@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { requirementsRouter } from "./routes/requirements.js";
+import { validationRouter } from "./routes/validations.js";
 
 const app = express();
 const PORT = process.env.API_PORT || 3001;
@@ -11,6 +12,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/requirements", requirementsRouter);
+app.use("/api/validations", validationRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {

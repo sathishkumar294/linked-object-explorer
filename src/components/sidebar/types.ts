@@ -45,3 +45,9 @@ export interface LevelMeta {
     darkColor: string;
     icon: string;
 }
+
+export interface ValidationMethod {
+    id: string;
+    label: string;
+    color: string;
+}

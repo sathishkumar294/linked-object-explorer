@@ -1,9 +1,9 @@
 import React from "react";
-import type { LevelMeta } from "./types";
-
+import type { LevelMeta, ValidationMethod } from "./types";
 interface DetailsGridProps {
     owner: string;
     meansOfValidation?: string[];
+    validationsMap: ValidationMethod[];
     meta: LevelMeta;
     nodeId: string;
     accentColor: string;
@@ -16,6 +16,7 @@ interface DetailsGridProps {
 const DetailsGrid: React.FC<DetailsGridProps> = ({
     owner,
     meansOfValidation,
+    validationsMap,
     meta,
     nodeId,
     accentColor,
@@ -101,9 +102,29 @@ const DetailsGrid: React.FC<DetailsGridProps> = ({
                             </span>
                             <span
                                 className="req-sidebar__detail-value"
-                                style={{ color: textPrimary, textTransform: "capitalize" }}
+                                style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}
                             >
-                                {meansOfValidation.map(v => v.replace('_', ' ')).join(', ')}
+                                {meansOfValidation.map((v: string) => {
+                                    const validationConfig = validationsMap.find((val: ValidationMethod) => val.id === v);
+                                    const label = validationConfig?.label || v.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+                                    const bgColor = validationConfig?.color || textSecondary;
+
+                                    return (
+                                        <span
+                                            key={v}
+                                            style={{
+                                                backgroundColor: bgColor,
+                                                color: '#ffffff',
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                                fontSize: '11px',
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            {label}
+                                        </span>
+                                    );
+                                })}
                             </span>
                         </div>
                     </>
