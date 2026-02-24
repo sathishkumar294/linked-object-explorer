@@ -17,6 +17,7 @@ import {
 } from "@xyflow/react";
 
 import React, { SetStateAction, useCallback, useState, useMemo } from "react";
+import RequirementDetailsSidebar from "./RequirementDetailsSidebar";
 import { useStore } from "@xyflow/react";
 
 // Dynamically calculate level bands based on viewport height
@@ -199,6 +200,11 @@ const RequirementNode = ({ data, theme }: { data: DataT; theme: Theme }) => {
 type DataT = {
   label: string;
   level: number;
+  description?: string;
+  status?: string;
+  priority?: string;
+  owner?: string;
+  linkedItems?: string[];
 };
 
 type PositionT = {
@@ -220,154 +226,354 @@ const initialNodes: NodeT[] = [
     id: "1.1",
     type: "requirement",
     position: { x: 300, y: 0 },
-    data: { label: "Req 1.1", level: 1 },
+    data: {
+      label: "Req 1.1",
+      level: 1,
+      description: "Top-level system requirement defining the overall performance and reliability constraints for the platform. This requirement drives the entire architecture and must be satisfied by all sub-systems.",
+      status: "Active",
+      priority: "High",
+      owner: "Systems Engineering",
+      linkedItems: ["Req 2.1", "Req 2.2"],
+    },
   },
   {
     id: "1.2",
     type: "requirement",
     position: { x: 600, y: 0 },
-    data: { label: "Req 1.2", level: 1 },
+    data: {
+      label: "Req 1.2",
+      level: 1,
+      description: "System-level safety requirement ensuring fail-safe operation under all defined fault conditions. Mandatory for certification compliance.",
+      status: "Review",
+      priority: "High",
+      owner: "Safety Team",
+      linkedItems: ["Req 2.2", "Req 2.3"],
+    },
   },
   // Level 2
   {
     id: "2.1",
     type: "requirement",
     position: { x: 150, y: 0 },
-    data: { label: "Req 2.1", level: 2 },
+    data: {
+      label: "Req 2.1",
+      level: 2,
+      description: "Power sub-system requirement specifying voltage regulation and surge protection within defined tolerances.",
+      status: "Active",
+      priority: "High",
+      owner: "Hardware Team",
+      linkedItems: ["Req 1.1", "Req 3.1", "Req 3.2", "Req 3.7"],
+    },
   },
   {
     id: "2.2",
     type: "requirement",
     position: { x: 450, y: 0 },
-    data: { label: "Req 2.2", level: 2 },
+    data: {
+      label: "Req 2.2",
+      level: 2,
+      description: "Communication sub-system requirement defining data transfer protocols and bandwidth guarantees between nodes.",
+      status: "Active",
+      priority: "Medium",
+      owner: "Network Team",
+      linkedItems: ["Req 1.1", "Req 1.2", "Req 3.3", "Req 3.4"],
+    },
   },
   {
     id: "2.3",
     type: "requirement",
     position: { x: 750, y: 0 },
-    data: { label: "Req 2.3", level: 2 },
+    data: {
+      label: "Req 2.3",
+      level: 2,
+      description: "Control sub-system requirement ensuring deterministic response times for all safety-critical control loops.",
+      status: "Draft",
+      priority: "High",
+      owner: "Control Systems",
+      linkedItems: ["Req 1.2", "Req 3.5", "Req 3.6", "Req 3.8"],
+    },
   },
   // Level 3
   {
     id: "3.1",
     type: "requirement",
     position: { x: 100, y: 0 },
-    data: { label: "Req 3.1", level: 3 },
+    data: {
+      label: "Req 3.1",
+      level: 3,
+      description: "Voltage regulator component must maintain output within ±2% under all load conditions.",
+      status: "Active",
+      priority: "High",
+      owner: "HW Design",
+      linkedItems: ["Req 2.1", "Req 4.1", "Req 4.2"],
+    },
   },
   {
     id: "3.2",
     type: "requirement",
     position: { x: 250, y: 0 },
-    data: { label: "Req 3.2", level: 3 },
+    data: {
+      label: "Req 3.2",
+      level: 3,
+      description: "Surge protection component must clamp transients to safe levels within 10 microseconds.",
+      status: "Active",
+      priority: "Medium",
+      owner: "HW Design",
+      linkedItems: ["Req 2.1", "Req 4.3", "Req 4.4"],
+    },
   },
   {
     id: "3.3",
     type: "requirement",
     position: { x: 400, y: 0 },
-    data: { label: "Req 3.3", level: 3 },
+    data: {
+      label: "Req 3.3",
+      level: 3,
+      description: "Network interface component must support full-duplex operation at minimum 1 Gbps throughput.",
+      status: "Active",
+      priority: "Medium",
+      owner: "Network Design",
+      linkedItems: ["Req 2.2", "Req 4.5", "Req 4.6"],
+    },
   },
   {
     id: "3.4",
     type: "requirement",
     position: { x: 550, y: 0 },
-    data: { label: "Req 3.4", level: 3 },
+    data: {
+      label: "Req 3.4",
+      level: 3,
+      description: "Packet scheduler component must guarantee max latency of 5ms for high-priority traffic classes.",
+      status: "Review",
+      priority: "High",
+      owner: "Network Design",
+      linkedItems: ["Req 2.2", "Req 4.7", "Req 4.8"],
+    },
   },
   {
     id: "3.5",
     type: "requirement",
     position: { x: 700, y: 0 },
-    data: { label: "Req 3.5", level: 3 },
+    data: {
+      label: "Req 3.5",
+      level: 3,
+      description: "PID controller component must execute control algorithms within 1ms cycle time on target hardware.",
+      status: "Active",
+      priority: "High",
+      owner: "Controls Design",
+      linkedItems: ["Req 2.3", "Req 4.9", "Req 4.10"],
+    },
   },
   {
     id: "3.6",
     type: "requirement",
     position: { x: 850, y: 0 },
-    data: { label: "Req 3.6", level: 3 },
+    data: {
+      label: "Req 3.6",
+      level: 3,
+      description: "Fault detection monitor must detect and log all out-of-range sensor readings within 2ms.",
+      status: "Active",
+      priority: "High",
+      owner: "Safety Design",
+      linkedItems: ["Req 2.3", "Req 4.11", "Req 4.12"],
+    },
   },
   {
     id: "3.7",
     type: "requirement",
     position: { x: 1000, y: 0 },
-    data: { label: "Req 3.7", level: 3 },
+    data: {
+      label: "Req 3.7",
+      level: 3,
+      description: "Battery management component must track state-of-charge with less than 1% error.",
+      status: "Draft",
+      priority: "Low",
+      owner: "HW Design",
+      linkedItems: ["Req 2.1"],
+    },
   },
   {
     id: "3.8",
     type: "requirement",
     position: { x: 1150, y: 0 },
-    data: { label: "Req 3.8", level: 3 },
+    data: {
+      label: "Req 3.8",
+      level: 3,
+      description: "Emergency stop component must disengage all actuators within 50ms of activation signal.",
+      status: "Active",
+      priority: "High",
+      owner: "Safety Design",
+      linkedItems: ["Req 2.3"],
+    },
   },
   // Level 4
   {
     id: "4.1",
     type: "requirement",
     position: { x: 50, y: 0 },
-    data: { label: "Req 4.1", level: 4 },
+    data: {
+      label: "Req 4.1",
+      level: 4,
+      description: "Implement LDO regulator circuit with feedback compensation per schematic REG-001.",
+      status: "Active",
+      priority: "High",
+      owner: "EE Team",
+      linkedItems: ["Req 3.1"],
+    },
   },
   {
     id: "4.2",
     type: "requirement",
     position: { x: 150, y: 0 },
-    data: { label: "Req 4.2", level: 4 },
+    data: {
+      label: "Req 4.2",
+      level: 4,
+      description: "Validate voltage regulation via automated test bench using standard load profiles.",
+      status: "Draft",
+      priority: "Medium",
+      owner: "Test Team",
+      linkedItems: ["Req 3.1"],
+    },
   },
   {
     id: "4.3",
     type: "requirement",
     position: { x: 250, y: 0 },
-    data: { label: "Req 4.3", level: 4 },
+    data: {
+      label: "Req 4.3",
+      level: 4,
+      description: "Install TVS diode array per BOM reference SPG-007 on all external power ports.",
+      status: "Active",
+      priority: "High",
+      owner: "EE Team",
+      linkedItems: ["Req 3.2"],
+    },
   },
   {
     id: "4.4",
     type: "requirement",
     position: { x: 350, y: 0 },
-    data: { label: "Req 4.4", level: 4 },
+    data: {
+      label: "Req 4.4",
+      level: 4,
+      description: "Verify surge clamping via IEC 61000-4-5 compliance test at Level 3 surge.",
+      status: "Review",
+      priority: "Medium",
+      owner: "Test Team",
+      linkedItems: ["Req 3.2"],
+    },
   },
   {
     id: "4.5",
     type: "requirement",
     position: { x: 450, y: 0 },
-    data: { label: "Req 4.5", level: 4 },
+    data: {
+      label: "Req 4.5",
+      level: 4,
+      description: "Configure NIC driver with Jumbo Frames support and interrupt coalescing enabled.",
+      status: "Active",
+      priority: "Low",
+      owner: "SW Team",
+      linkedItems: ["Req 3.3"],
+    },
   },
   {
     id: "4.6",
     type: "requirement",
     position: { x: 550, y: 0 },
-    data: { label: "Req 4.6", level: 4 },
+    data: {
+      label: "Req 4.6",
+      level: 4,
+      description: "Benchmark network interface throughput using iperf3 under full system load.",
+      status: "Draft",
+      priority: "Low",
+      owner: "Test Team",
+      linkedItems: ["Req 3.3"],
+    },
   },
   {
     id: "4.7",
     type: "requirement",
     position: { x: 650, y: 0 },
-    data: { label: "Req 4.7", level: 4 },
+    data: {
+      label: "Req 4.7",
+      level: 4,
+      description: "Implement DSCP-based traffic prioritization in software packet scheduler.",
+      status: "Active",
+      priority: "High",
+      owner: "SW Team",
+      linkedItems: ["Req 3.4"],
+    },
   },
   {
     id: "4.8",
     type: "requirement",
     position: { x: 750, y: 0 },
-    data: { label: "Req 4.8", level: 4 },
+    data: {
+      label: "Req 4.8",
+      level: 4,
+      description: "Verify end-to-end latency for high-priority traffic via timestamped packet injection test.",
+      status: "Review",
+      priority: "High",
+      owner: "Test Team",
+      linkedItems: ["Req 3.4"],
+    },
   },
   {
     id: "4.9",
     type: "requirement",
     position: { x: 850, y: 0 },
-    data: { label: "Req 4.9", level: 4 },
+    data: {
+      label: "Req 4.9",
+      level: 4,
+      description: "Implement discrete PID algorithm in RTOS task with 1ms period and watchdog supervision.",
+      status: "Active",
+      priority: "High",
+      owner: "Controls SW",
+      linkedItems: ["Req 3.5"],
+    },
   },
   {
     id: "4.10",
     type: "requirement",
     position: { x: 950, y: 0 },
-    data: { label: "Req 4.10", level: 4 },
+    data: {
+      label: "Req 4.10",
+      level: 4,
+      description: "Validate PID cycle time via RTOS trace log analysis on target hardware.",
+      status: "Draft",
+      priority: "Medium",
+      owner: "Test Team",
+      linkedItems: ["Req 3.5"],
+    },
   },
   {
     id: "4.11",
     type: "requirement",
     position: { x: 1050, y: 0 },
-    data: { label: "Req 4.11", level: 4 },
+    data: {
+      label: "Req 4.11",
+      level: 4,
+      description: "Implement threshold-based anomaly detection using rolling average on sensor input queue.",
+      status: "Active",
+      priority: "High",
+      owner: "Safety SW",
+      linkedItems: ["Req 3.6"],
+    },
   },
   {
     id: "4.12",
     type: "requirement",
     position: { x: 1150, y: 0 },
-    data: { label: "Req 4.12", level: 4 },
+    data: {
+      label: "Req 4.12",
+      level: 4,
+      description: "Log all anomaly events to redundant black-box storage with ISO 8601 timestamps.",
+      status: "Active",
+      priority: "Medium",
+      owner: "Safety SW",
+      linkedItems: ["Req 3.6"],
+    },
   },
 ];
 
@@ -662,6 +868,7 @@ export default function ReactFlowGraph() {
     }))
   );
   const [selectedNode, setSelectedNode] = useState<NodeT | undefined>();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -683,16 +890,48 @@ export default function ReactFlowGraph() {
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: SetStateAction<NodeT | undefined>) => {
       setSelectedNode(node);
+      setSidebarOpen(true);
     },
     []
   );
 
-  const closeDetails = () => {
-    setSelectedNode(undefined);
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
+  const toggleInfoSidebar = () => {
+    setSidebarOpen((prev) => !prev);
   };
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
+      {/* Info button fixed top-right */}
+      <button
+        className="req-info-btn"
+        onClick={toggleInfoSidebar}
+        title={sidebarOpen ? "Close details" : "Open requirement details"}
+        aria-label="Toggle requirement details sidebar"
+        style={{
+          background: theme === "dark" ? "#27272a" : "#ffffff",
+          color: theme === "dark" ? "#a1a1aa" : "#374151",
+          border: theme === "dark" ? "1.5px solid #3f3f46" : "1.5px solid #d1d5db",
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.8" />
+          <rect x="9.1" y="8.5" width="1.8" height="6" rx="0.9" fill="currentColor" />
+          <circle cx="10" cy="5.8" r="1.1" fill="currentColor" />
+        </svg>
+      </button>
+
+      {/* Requirement details sidebar */}
+      <RequirementDetailsSidebar
+        node={selectedNode}
+        open={sidebarOpen}
+        onClose={closeSidebar}
+        theme={theme}
+      />
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -732,42 +971,6 @@ export default function ReactFlowGraph() {
           }}
         />
 
-        {selectedNode && (
-          <Panel
-            position="top-right"
-            className={
-              theme === "dark"
-                ? "bg-gray-900 text-white p-4 rounded-lg shadow-lg w-64"
-                : "bg-white p-4 rounded-lg shadow-lg w-64"
-            }
-          >
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-bold text-lg">Requirement Details</h3>
-              <button
-                onClick={closeDetails}
-                className={
-                  theme === "dark"
-                    ? "text-gray-400 hover:text-gray-200 text-2xl leading-none"
-                    : "text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                }
-              >
-                ×
-              </button>
-            </div>
-
-            <div
-              className={
-                theme === "dark"
-                  ? "bg-gray-800 p-3 rounded mb-3"
-                  : "bg-gray-100 p-3 rounded mb-3"
-              }
-            >
-              <h4 className="font-semibold">{selectedNode.data.label}</h4>
-              <p className="text-sm">Level: {selectedNode.data.level}</p>
-            </div>
-          </Panel>
-        )}
-
         <Panel
           position="bottom-center"
           className={
@@ -787,9 +990,8 @@ export default function ReactFlowGraph() {
               const level = levelNum as Level;
               return (
                 <div
-                  className={`flex items-center mb-1${
-                    level === 4 ? " mb-0" : ""
-                  }`}
+                  className={`flex items-center mb-1${level === 4 ? " mb-0" : ""
+                    }`}
                   key={level}
                 >
                   <div
