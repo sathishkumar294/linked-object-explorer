@@ -429,6 +429,7 @@ function ReactFlowGraphInner() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onPaneClick={closeSidebar}
         nodeTypes={nodeTypes}
         fitView
         attributionPosition="bottom-left"

@@ -9,6 +9,8 @@ Linked Object Explorer is a visualization tool for exploring linked hierarchical
 - Visualize hierarchical and linked objects interactively
 - Drag-and-drop node manipulation
 - Expand/collapse object hierarchies
+- View detailed requirement properties via an interactive, non-blocking sidebar
+- Seamlessly switch between requirements to update details on the fly
 - Customizable node and edge types
 
 ## Major Technologies Used

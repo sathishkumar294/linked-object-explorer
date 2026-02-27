@@ -67,13 +67,6 @@ const RequirementDetailsSidebar: React.FC<Props> = ({
 
     return (
         <>
-            {/* Backdrop */}
-            <div
-                className={`req-sidebar-backdrop${open ? " req-sidebar-backdrop--visible" : ""}`}
-                onClick={onClose}
-                aria-hidden="true"
-            />
-
             {/* Sidebar */}
             <aside
                 className={`req-sidebar${open ? " req-sidebar--open" : ""}`}
