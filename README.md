@@ -54,7 +54,7 @@ http://localhost:5173
 (Port may vary depending on your setup.)
 
 ## Demo
-<video src="https://github.com/user-attachments/assets/df5b50fd-b36d-46a6-835e-0727847d9507" autoplay loop muted playsinline style="max-width: 100%;">
+<video src="https://github.com/user-attachments/assets/30148b83-11e7-4932-a7cd-af0cec2dd23a" autoplay loop muted playsinline style="max-width: 100%;">
 </video>
 
 ## License
