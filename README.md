@@ -53,6 +53,10 @@ http://localhost:5173
 
 (Port may vary depending on your setup.)
 
+## Demo
+<video src="https://github.com/user-attachments/assets/df5b50fd-b36d-46a6-835e-0727847d9507" autoplay loop muted playsinline style="max-width: 100%;">
+</video>
+
 ## License
 
 This project is free to use for any purpose, provided you contact the author before use. For inquiries and permissions, please reach out to the repository owner.
