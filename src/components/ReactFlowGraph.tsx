@@ -193,9 +193,6 @@ const RequirementNode = ({ data, theme }: { data: DataT; theme: Theme }) => {
   );
 };
 
-
-
-
 function ReactFlowGraphInner() {
   const { setCenter } = useReactFlow();
   const [nodes, setNodes] = useNodesState<any>([]);
@@ -206,8 +203,8 @@ function ReactFlowGraphInner() {
   // Fetch requirements and validations from API
   React.useEffect(() => {
     Promise.all([
-      fetch('/api/requirements').then(r => r.json()),
-      fetch('/api/validations').then(r => r.json())
+      fetch("/api/requirements").then((r) => r.json()),
+      fetch("/api/validations").then((r) => r.json()),
     ])
       .then(([reqData, valData]) => {
         setValidations(valData);
@@ -215,28 +212,33 @@ function ReactFlowGraphInner() {
         const bands = getLevelBands();
         const levelCounts: Record<number, number> = {};
 
-        const mappedNodes: NodeT[] = (data.requirements || []).map((req: any) => {
-          const l = req.level || 1;
-          const count = levelCounts[l] || 0;
-          levelCounts[l] = count + 1;
+        const mappedNodes: NodeT[] = (data.requirements || []).map(
+          (req: any) => {
+            const l = req.level || 1;
+            const count = levelCounts[l] || 0;
+            levelCounts[l] = count + 1;
 
-          return {
-            id: req.businessId,
-            type: 'requirement',
-            position: { x: count * 350 + 150, y: (bands[l] ? bands[l].center : 0) - 30 },
-            data: {
-              label: req.businessId,
-              title: req.title,
-              level: l,
-              description: req.statement,
-              rationale: req.rationale,
-              status: req.status,
-              priority: req.priority,
-              owner: req.owner,
-              meansOfValidation: req.meansOfValidation,
-            }
-          };
-        });
+            return {
+              id: req.businessId,
+              type: "requirement",
+              position: {
+                x: count * 350 + 150,
+                y: (bands[l] ? bands[l].center : 0) - 30,
+              },
+              data: {
+                label: req.businessId,
+                title: req.title,
+                level: l,
+                description: req.statement,
+                rationale: req.rationale,
+                status: req.status,
+                priority: req.priority,
+                owner: req.owner,
+                meansOfValidation: req.meansOfValidation,
+              },
+            };
+          }
+        );
 
         const mappedEdges: Edge[] = (data.edges || []).map((edge: any) => ({
           ...edge,
@@ -250,7 +252,7 @@ function ReactFlowGraphInner() {
         setNodes(mappedNodes);
         setEdges(mappedEdges);
       })
-      .catch((err) => console.error('Failed to fetch data:', err));
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, [setNodes, setEdges]);
 
   // Restrict node movement vertically within its level band, and center nodes on mount
@@ -390,6 +392,16 @@ function ReactFlowGraphInner() {
     setSidebarOpen((prev) => !prev);
   };
 
+  // compute typed style for the info button so we can set CSS custom property without using `any`
+  const infoBtnStyle: React.CSSProperties & Record<string, string> = {
+    background: theme === "dark" ? "#27272a" : "#ffffff",
+    color: theme === "dark" ? "#a1a1aa" : "#374151",
+    border: theme === "dark" ? "1.5px solid #3f3f46" : "1.5px solid #d1d5db",
+    ["--req-info-translate"]: sidebarOpen
+      ? `calc(-1 * (var(--req-sidebar-width) + var(--req-sidebar-gap)))`
+      : "0px",
+  };
+
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
       {/* Info button fixed top-right */}
@@ -398,15 +410,30 @@ function ReactFlowGraphInner() {
         onClick={toggleInfoSidebar}
         title={sidebarOpen ? "Close details" : "Open requirement details"}
         aria-label="Toggle requirement details sidebar"
-        style={{
-          background: theme === "dark" ? "#27272a" : "#ffffff",
-          color: theme === "dark" ? "#a1a1aa" : "#374151",
-          border: theme === "dark" ? "1.5px solid #3f3f46" : "1.5px solid #d1d5db",
-        }}
+        style={infoBtnStyle}
       >
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.8" />
-          <rect x="9.1" y="8.5" width="1.8" height="6" rx="0.9" fill="currentColor" />
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <rect
+            x="9.1"
+            y="8.5"
+            width="1.8"
+            height="6"
+            rx="0.9"
+            fill="currentColor"
+          />
           <circle cx="10" cy="5.8" r="1.1" fill="currentColor" />
         </svg>
       </button>
@@ -482,8 +509,9 @@ function ReactFlowGraphInner() {
               const level = levelNum as Level;
               return (
                 <div
-                  className={`flex items-center mb-1${level === 4 ? " mb-0" : ""
-                    }`}
+                  className={`flex items-center mb-1${
+                    level === 4 ? " mb-0" : ""
+                  }`}
                   key={level}
                 >
                   <div
