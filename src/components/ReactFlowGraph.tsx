@@ -18,7 +18,7 @@ import {
   applyNodeChanges,
 } from "@xyflow/react";
 
-import React, { SetStateAction, useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import RequirementDetailsSidebar from "./RequirementDetailsSidebar";
 import { useStore } from "@xyflow/react";
 import type { DataT, NodeT, ValidationMethod } from "./sidebar/types";
@@ -355,13 +355,41 @@ function ReactFlowGraphInner() {
     document.body.style.backgroundColor = theme === "dark" ? "#18181b" : "#fff";
   }, [theme]);
 
-  const onNodeClick = useCallback(
-    (_event: React.MouseEvent, node: SetStateAction<NodeT | undefined>) => {
-      setSelectedNode(node);
-      setSidebarOpen(true);
-    },
-    []
-  );
+  // Helpers to open/close sidebar and keep CSS vars/classes in sync so the info
+  // button moves purely with CSS and avoids layout jumps.
+  const openSidebar = (node?: NodeT) => {
+    const root = document.documentElement;
+    const gapStr =
+      getComputedStyle(root).getPropertyValue("--req-sidebar-gap") || "12";
+    const gap = Number(gapStr.replace("px", "")) || 12;
+    const sidebarEl = document.querySelector(
+      ".req-sidebar"
+    ) as HTMLElement | null;
+    const cssWidth =
+      Number(
+        getComputedStyle(root)
+          .getPropertyValue("--req-sidebar-width")
+          .replace("px", "")
+      ) || 360;
+    const sidebarWidth = sidebarEl?.offsetWidth ?? cssWidth;
+    const translate = `-${sidebarWidth + gap}px`;
+    // set the translate and a root class immediately so CSS transitions run
+    root.style.setProperty("--req-info-translate", translate);
+    root.classList.add("req-sidebar-open");
+    setSidebarOpen(true);
+    if (node !== undefined) setSelectedNode(node);
+  };
+
+  const closeSidebar = () => {
+    const root = document.documentElement;
+    root.classList.remove("req-sidebar-open");
+    root.style.setProperty("--req-info-translate", "0px");
+    setSidebarOpen(false);
+  };
+
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: NodeT) => {
+    openSidebar(node);
+  }, []);
 
   // Navigate to a node: pan/zoom the canvas and select it in the sidebar
   const handleNavigateToNode = useCallback(
@@ -379,28 +407,49 @@ function ReactFlowGraphInner() {
 
       // Update sidebar to show the navigated node
       setSelectedNode(targetNode);
-      setSidebarOpen(true);
+      openSidebar();
     },
     [nodes, setCenter]
   );
 
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
-
   const toggleInfoSidebar = () => {
-    setSidebarOpen((prev) => !prev);
+    if (sidebarOpen) closeSidebar();
+    else openSidebar();
   };
 
-  // compute typed style for the info button so we can set CSS custom property without using `any`
-  const infoBtnStyle: React.CSSProperties & Record<string, string> = {
+  const infoBtnStyle: React.CSSProperties = {
     background: theme === "dark" ? "#27272a" : "#ffffff",
     color: theme === "dark" ? "#a1a1aa" : "#374151",
     border: theme === "dark" ? "1.5px solid #3f3f46" : "1.5px solid #d1d5db",
-    ["--req-info-translate"]: sidebarOpen
-      ? `calc(-1 * (var(--req-sidebar-width) + var(--req-sidebar-gap)))`
-      : "0px",
   };
+
+  // Keep translate in sync on resize. Use the presence of the root class to
+  // decide whether the button should be translated.
+  React.useEffect(() => {
+    const root = document.documentElement;
+    const updateOnResize = () => {
+      const isOpen = root.classList.contains("req-sidebar-open");
+      const gapStr =
+        getComputedStyle(root).getPropertyValue("--req-sidebar-gap") || "12";
+      const gap = Number(gapStr.replace("px", "")) || 12;
+      const sidebarEl = document.querySelector(
+        ".req-sidebar"
+      ) as HTMLElement | null;
+      const cssWidth =
+        Number(
+          getComputedStyle(root)
+            .getPropertyValue("--req-sidebar-width")
+            .replace("px", "")
+        ) || 360;
+      const sidebarWidth = sidebarEl?.offsetWidth ?? cssWidth;
+      const translate = isOpen ? `-${sidebarWidth + gap}px` : "0px";
+      root.style.setProperty("--req-info-translate", translate);
+    };
+
+    updateOnResize();
+    window.addEventListener("resize", updateOnResize);
+    return () => window.removeEventListener("resize", updateOnResize);
+  }, []);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
